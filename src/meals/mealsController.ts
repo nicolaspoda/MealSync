@@ -25,6 +25,7 @@ export class MealsController extends Controller {
    * Supply the unique meal ID from either and receive corresponding meal details.
    * @param mealId The meal's identifier
    * @param title The title to display
+   * @example mealId "52907745-7672-470e-a803-a2f8feb52944"
    */
   @Get("{mealId}")
   public async getMeal(

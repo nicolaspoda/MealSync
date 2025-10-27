@@ -9,7 +9,7 @@ export class MealsService {
       title: title ? title : "meal1",
       description: "my super meal",
       calories: 200,
-      aliment: ["test"],
+      aliments: ["test"],
     };
   }
 
@@ -20,14 +20,14 @@ export class MealsService {
         title: "meal1",
         description: "my super meal",
         calories: 200,
-        aliment: ["test"],
+        aliments: ["test"],
       },
       {
         id: "ggggtg-gggg",
         title: "meal2",
         description: "my super meal",
         calories: 200,
-        aliment: ["test"],
+        aliments: ["test"],
       },
     ];
   }
