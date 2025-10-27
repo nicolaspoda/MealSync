@@ -3,17 +3,17 @@
   "compilerOptions": {
     // File Layout
     // "rootDir": "./src",
-    // "outDir": "./dist",
+    "outDir": "build",
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "moduleResolution": "node",
-    "module": "es2022",
-    "target": "es2022",
-    "types": [],
-    // For nodejs:
-    // "lib": ["esnext"],
+    "module": "commonjs",
+    "target": "es2021",
+    "lib": ["es2021"],
     // "types": ["node"],
+    "typeRoots": ["node_modules/@types", "./typings"],
+    "esModuleInterop": true,
     // and npm install -D @types/node
 
     // Other Outputs
@@ -23,7 +23,7 @@
 
     // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
+    // "exactOptionalPropertyTypes": true,
 
     // Style Options
     // "noImplicitReturns": true,
@@ -36,10 +36,16 @@
     // Recommended Options
     "strict": true,
     "jsx": "react-jsx",
-    "verbatimModuleSyntax": true,
+    // "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "downlevelIteration": true
+  },
+  "ts-node": {
+    "transpileOnly": true
   }
 }

@@ -1,13 +1,14 @@
 {
   "name": "mealsync",
   "version": "1.0.0",
-  "description": "Plateforme de gestion des repas et de l’alimentation orientée nutrition et sport. MealSync permet aux utilisateurs de créer et gérer des plats et recettes, consulter les informations nutritionnelles (calories, macro-nutriments), filtrer par ingrédients et trouver des idées de repas en fonction du temps disponible pour cuisiner.",
-  "main": "index.js",
-  "type": "module",
+  "description": "Plateforme de gestion des repas et de l'alimentation orientée nutrition et sport. MealSync permet aux utilisateurs de créer et gérer des plats et recettes, consulter les informations nutritionnelles (calories, macro-nutriments), filtrer par ingrédients et trouver des idées de repas en fonction du temps disponible pour cuisiner.",
+  "main": "build/src/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "tsoa:routes": "tsoa routes",
-    "tsoa:spec": "tsoa spec"
+    "tsoa:spec": "tsoa spec",
+    "build": "tsoa spec-and-routes && tsc",
+    "start": "node build/src/server.js"
   },
   "repository": {
     "type": "git",
