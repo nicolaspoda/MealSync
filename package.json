@@ -1,0 +1,30 @@
+{
+  "name": "mealsync",
+  "version": "1.0.0",
+  "description": "Plateforme de gestion des repas et de l’alimentation orientée nutrition et sport. MealSync permet aux utilisateurs de créer et gérer des plats et recettes, consulter les informations nutritionnelles (calories, macro-nutriments), filtrer par ingrédients et trouver des idées de repas en fonction du temps disponible pour cuisiner.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nicolaspoda/MealSync.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nicolaspoda/MealSync/issues"
+  },
+  "homepage": "https://github.com/nicolaspoda/MealSync#readme",
+  "dependencies": {
+    "@tsoa/runtime": "^6.6.0",
+    "express": "^5.1.0",
+    "tsoa": "^6.6.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.4",
+    "@types/node": "^24.9.1",
+    "typescript": "^5.9.3"
+  }
+}
