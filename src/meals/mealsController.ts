@@ -8,6 +8,7 @@ import {
   Route,
   SuccessResponse,
   Response,
+  Security,
 } from "tsoa";
 import type { Meal } from "./meal";
 import { MealCreationParams, MealsService } from "./mealsService";
@@ -16,6 +17,7 @@ import ValidateErrorJSON from "../shared/validationErrorJSON";
 @Route("meals")
 export class MealsController extends Controller {
   @Get()
+  @Security("api_key")
   public async getMeals(): Promise<Meal[]> {
     return new MealsService().getAll();
   }
