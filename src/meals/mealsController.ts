@@ -11,11 +11,7 @@ import {
 } from "tsoa";
 import type { Meal } from "./meal";
 import { MealCreationParams, MealsService } from "./mealsService";
-
-interface ValidateErrorJSON {
-  message: "Validation failed";
-  details: { [name: string]: unknown };
-}
+import ValidateErrorJSON from "../shared/validationErrorJSON";
 
 @Route("meals")
 export class MealsController extends Controller {
