@@ -13,8 +13,23 @@ import { UUID } from "../shared/uuid";
  */
 export interface Meal {
   id: UUID;
+  /**
+   * @isString title must be a string value
+   * @minLength 12 title must be at least 12 characters
+   * @maxLength 60 title must be at most 60 characters
+   */
   title: string;
+  /**
+   * @isString title must be a string value
+   */
   description: string;
+  /**
+   * @isInt calories must be an integer
+   * @minimum 0 calories must be over 0
+   */
   calories: number;
+  /**
+   * @minItems 1 at least 1 aliment is required
+   */
   aliments: string[];
 }
