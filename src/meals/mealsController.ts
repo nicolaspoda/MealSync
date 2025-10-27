@@ -20,6 +20,12 @@ export class MealsController extends Controller {
     return new MealsService().getAll();
   }
 
+  /**
+   * Retrieves the details of an existing meal.
+   * Supply the unique meal ID from either and receive corresponding meal details.
+   * @param mealId The meal's identifier
+   * @param title The title to display
+   */
   @Get("{mealId}")
   public async getMeal(
     @Path() mealId: string,
