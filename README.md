@@ -116,7 +116,3 @@ npm run tsoa:generate
 
 Phase de lancement et rédaction du contrat API.
 
----
-
-
-Souhaites-tu que je t’envoie aussi ces fichiers pour finaliser ton Sprint 1 rapidement ?
