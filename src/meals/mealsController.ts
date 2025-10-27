@@ -1,6 +1,21 @@
-import { Controller, Get, Path, Query, Route } from "tsoa";
+import {
+  Body,
+  Controller,
+  Get,
+  Path,
+  Post,
+  Query,
+  Route,
+  SuccessResponse,
+  Response,
+} from "tsoa";
 import type { Meal } from "./meal";
-import { MealsService } from "./mealsService";
+import { MealCreationParams, MealsService } from "./mealsService";
+
+interface ValidateErrorJSON {
+  message: "Validation failed";
+  details: { [name: string]: unknown };
+}
 
 @Route("meals")
 export class MealsController extends Controller {
@@ -15,5 +30,16 @@ export class MealsController extends Controller {
     @Query() title?: string
   ): Promise<Meal> {
     return new MealsService().get(mealId, title);
+  }
+
+  @Response<ValidateErrorJSON>(422, "Validation Failed")
+  @SuccessResponse("201", "Created")
+  @Post()
+  public async createMeal(
+    @Body() requestBody: MealCreationParams
+  ): Promise<void> {
+    this.setStatus(201);
+    new MealsService().create(requestBody);
+    return;
   }
 }

@@ -32,10 +32,10 @@ export class MealsService {
     ];
   }
 
-  // public create(mealCreationParams: MealCreationParams): Meal {
-  //   return {
-  //     id: "gggth",
-  //     ...mealCreationParams,
-  //   };
-  // }
+  public create(mealCreationParams: MealCreationParams): Meal {
+    return {
+      id: "gggth",
+      ...mealCreationParams,
+    };
+  }
 }
