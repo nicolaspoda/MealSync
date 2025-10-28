@@ -1,0 +1,116 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Meal {
+  id           String        @id @default(cuid())
+  titre        String
+  description  String
+  calories     Int
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  
+  aliments     MealAliment[]
+  preparations MealPreparation[]
+  equipements  MealEquipement[]
+  
+  @@map("meals")
+}
+
+model Equipment {
+  id   String @id @default(cuid())
+  nom  String @unique
+  
+  meals MealEquipement[]
+  
+  @@map("equipements")
+}
+
+model Preparation {
+  id           String @id @default(cuid())
+  etape        Int
+  description  String
+  temps_estime Int
+  
+  meals MealPreparation[]
+  
+  @@map("preparations")
+}
+
+model Aliment {
+  id        String @id @default(cuid())
+  nom       String @unique
+  cal_100g  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  meals     MealAliment[]
+  macros    AlimentMacro[]
+  
+  @@map("aliments")
+}
+
+model Macro {
+  id   String @id @default(cuid())
+  nom  String @unique
+  
+  aliments AlimentMacro[]
+  
+  @@map("macros")
+}
+
+model MealAliment {
+  mealId    String
+  alimentId String
+  quantite  Float
+  
+  meal    Meal    @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  aliment Aliment @relation(fields: [alimentId], references: [id], onDelete: Cascade)
+  
+  @@id([mealId, alimentId])
+  @@map("meal_aliments")
+}
+
+model MealPreparation {
+  mealId        String
+  preparationId String
+  ordre         Int
+  
+  meal        Meal        @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  preparation Preparation @relation(fields: [preparationId], references: [id], onDelete: Cascade)
+  
+  @@id([mealId, preparationId])
+  @@map("meal_preparations")
+}
+
+model MealEquipement {
+  mealId      String
+  equipmentId String
+  
+  meal      Meal      @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  equipment Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  
+  @@id([mealId, equipmentId])
+  @@map("meal_equipements")
+}
+
+model AlimentMacro {
+  alimentId String
+  macroId   String
+  quantite  Float
+  
+  aliment Aliment @relation(fields: [alimentId], references: [id], onDelete: Cascade)
+  macro   Macro   @relation(fields: [macroId], references: [id], onDelete: Cascade)
+  
+  @@id([alimentId, macroId])
+  @@map("aliment_macros")
+}
