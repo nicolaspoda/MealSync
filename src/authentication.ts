@@ -31,17 +31,17 @@ export async function expressAuthentication(
       return Promise.reject({});
     }
 
-    return Promise.resolve({ id: 1, name: "IronMan" });
+    dbToken.lastUsedAt = new Date();
+    await prisma.apiKey.update({
+      where: {
+        keyHash: dbToken.keyHash,
+      },
+      data: {
+        lastUsedAt: new Date(),
+      },
+    });
 
-    // if (token === "abc123456") {
-    //   return Promise.resolve({
-    //     id: 1,
-    //     name: "Ironman",
-    //   });
-    // } else {
-    //   request.res?.status(401).json({ message: "invalid or missing api key" });
-    //   return Promise.reject({});
-    // }
+    return Promise.resolve({});
   }
 
   return Promise.reject({});
