@@ -5,7 +5,7 @@ import { UUID } from "../shared/uuid";
  * every meal in the system regardless of calories and aliments.
  * @example {
  *  "id": "52907745-7672-470e-a803-a2f8feb52944",
- *  "titre": "My healthy meal",
+ *  "title": "My healthy meal",
  *  "description": "A healthy meal for a healthy body",
  *  "calories": "650",
  *  "aliments": []
@@ -14,11 +14,11 @@ import { UUID } from "../shared/uuid";
 export interface Meal {
   id: UUID;
   /**
-   * @isString titre must be a string value
-   * @minLength 3 titre must be at least 3 characters
-   * @maxLength 60 titre must be at most 60 characters
+   * @isString title must be a string value
+   * @minLength 3 title must be at least 3 characters
+   * @maxLength 60 title must be at most 60 characters
    */
-  titre: string;
+  title: string;
   /**
    * @isString description must be a string value
    */
