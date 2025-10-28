@@ -9,12 +9,14 @@ import {
   SuccessResponse,
   Response,
   Security,
+  Tags,
 } from "tsoa";
 import type { Meal } from "./meal";
 import { MealCreationParams, MealsService } from "./mealsService";
 import ValidateErrorJSON from "../shared/validationErrorJSON";
 
 @Route("meals")
+@Tags("Meals")
 export class MealsController extends Controller {
   @Get()
   @Security("api_key")
