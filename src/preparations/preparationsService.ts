@@ -16,7 +16,7 @@ export class PreparationsService {
             meal: true,
           },
           orderBy: {
-            ordre: "asc",
+            order: "asc",
           },
         },
       },
@@ -33,12 +33,12 @@ export class PreparationsService {
             meal: true,
           },
           orderBy: {
-            ordre: "asc",
+            order: "asc",
           },
         },
       },
       orderBy: {
-        etape: "asc",
+        step: "asc",
       },
     });
 
@@ -54,7 +54,7 @@ export class PreparationsService {
             meal: true,
           },
           orderBy: {
-            ordre: "asc",
+            order: "asc",
           },
         },
       },
@@ -76,7 +76,7 @@ export class PreparationsService {
             meal: true,
           },
           orderBy: {
-            ordre: "asc",
+            order: "asc",
           },
         },
       },

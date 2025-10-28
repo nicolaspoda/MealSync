@@ -4,7 +4,7 @@ import { UUID } from "../shared/uuid";
  * The Aliment object represents a food ingredient with nutritional information.
  * @example {
  *  "id": "52907745-7672-470e-a803-a2f8feb52944",
- *  "nom": "Poulet",
+ *  "name": "Poulet",
  *  "cal_100g": 165,
  *  "macros": []
  * }
@@ -12,11 +12,11 @@ import { UUID } from "../shared/uuid";
 export interface Aliment {
   id: UUID;
   /**
-   * @isString nom must be a string value
-   * @minLength 2 nom must be at least 2 characters
-   * @maxLength 50 nom must be at most 50 characters
+   * @isString name must be a string value
+   * @minLength 2 name must be at least 2 characters
+   * @maxLength 50 name must be at most 50 characters
    */
-  nom: string;
+  name: string;
   /**
    * @isInt cal_100g must be an integer
    * @minimum 0 cal_100g must be over 0
@@ -33,7 +33,7 @@ export interface Aliment {
 
 export interface AlimentMeal {
   mealId: string;
-  quantite: number;
+  quantity: number;
   meal?: {
     id: string;
     title: string;
@@ -44,9 +44,9 @@ export interface AlimentMeal {
 
 export interface AlimentMacro {
   macroId: string;
-  quantite: number;
+  quantity: number;
   macro?: {
     id: string;
-    nom: string;
+    name: string;
   };
 }

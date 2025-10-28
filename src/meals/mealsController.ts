@@ -13,13 +13,46 @@ import {
   Security,
   Tags,
 } from "tsoa";
-import type { Meal } from "./meal";
+import type { Meal, PaginatedMeals, MealListParams } from "./meal";
 import { MealCreationParams, MealsService } from "./mealsService";
 import ValidateErrorJSON from "../shared/validationErrorJSON";
 
 @Route("meals")
 @Tags("Meals")
 export class MealsController extends Controller {
+  /**
+   * Retrieves a paginated list of meals with optional filters.
+   * @param page Page number (default: 1)
+   * @param limit Number of items per page (default: 10, max: 100)
+   * @param title Filter by meal title (partial match)
+   * @param minCalories Filter by minimum calories
+   * @param maxCalories Filter by maximum calories  
+   * @param aliment Filter by aliment name (partial match)
+   * @param equipment Filter by equipment name (partial match)
+   */
+  @Get("paginated")
+  @Security("api_key")
+  public async getMealsPaginated(
+    @Query() page?: number,
+    @Query() limit?: number,
+    @Query() title?: string,
+    @Query() minCalories?: number,
+    @Query() maxCalories?: number,
+    @Query() aliment?: string,
+    @Query() equipment?: string
+  ): Promise<PaginatedMeals> {
+    const params: MealListParams = {
+      page,
+      limit,
+      title,
+      minCalories,
+      maxCalories,
+      aliment,
+      equipment
+    };
+    return new MealsService().getAllPaginated(params);
+  }
+
   @Get()
   @Security("api_key")
   public async getMeals(): Promise<Meal[]> {
