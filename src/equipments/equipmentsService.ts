@@ -32,7 +32,7 @@ export class EquipmentsService {
         },
       },
       orderBy: {
-        nom: "asc",
+        name: "asc",
       },
     });
 

@@ -4,18 +4,18 @@ import { UUID } from "../shared/uuid";
  * The Macro object represents a macronutrient category.
  * @example {
  *  "id": "52907745-7672-470e-a803-a2f8feb52944",
- *  "nom": "Protéines",
+ *  "name": "Protéines",
  *  "aliments": []
  * }
  */
 export interface Macro {
   id: UUID;
   /**
-   * @isString nom must be a string value
-   * @minLength 2 nom must be at least 2 characters
-   * @maxLength 30 nom must be at most 30 characters
+   * @isString name must be a string value
+   * @minLength 2 name must be at least 2 characters
+   * @maxLength 30 name must be at most 30 characters
    */
-  nom: string;
+  name: string;
   /**
    * @minItems 0 aliments array can be empty
    */
@@ -24,10 +24,10 @@ export interface Macro {
 
 export interface MacroAliment {
   alimentId: string;
-  quantite: number;
+  quantity: number;
   aliment?: {
     id: string;
-    nom: string;
+    name: string;
     cal_100g: number;
   };
 }

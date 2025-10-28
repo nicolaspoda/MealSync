@@ -35,34 +35,101 @@ export interface Meal {
    */
   aliments?: MealAliment[];
   preparations?: MealPreparation[];
-  equipements?: MealEquipement[];
+  equipements?: MealEquipment[];
 }
 
 export interface MealAliment {
   alimentId: string;
-  quantite: number;
+  quantity: number;
   aliment?: {
     id: string;
-    nom: string;
+    name: string;
     cal_100g: number;
   };
 }
 
 export interface MealPreparation {
   preparationId: string;
-  ordre: number;
+  order: number;
   preparation?: {
     id: string;
-    etape: number;
+    step: number;
     description: string;
-    temps_estime: number;
+    estimated_time: number;
   };
 }
 
-export interface MealEquipement {
+export interface MealEquipment {
   equipmentId: string;
   equipment?: {
     id: string;
-    nom: string;
+    name: string;
+  };
+}
+
+/**
+ * Pagination parameters for meals listing
+ */
+export interface MealPaginationParams {
+  /**
+   * @isInt page must be an integer
+   * @minimum 1 page must be at least 1
+   */
+  page?: number;
+  /**
+   * @isInt limit must be an integer
+   * @minimum 1 limit must be at least 1
+   * @maximum 100 limit must be at most 100
+   */
+  limit?: number;
+}
+
+/**
+ * Filter parameters for meals listing
+ */
+export interface MealFilterParams {
+  /**
+   * Filter by meal title (partial match)
+   */
+  title?: string;
+  /**
+   * Filter by minimum calories
+   * @isInt minCalories must be an integer
+   * @minimum 0 minCalories must be at least 0
+   */
+  minCalories?: number;
+  /**
+   * Filter by maximum calories
+   * @isInt maxCalories must be an integer
+   * @minimum 0 maxCalories must be at least 0
+   */
+  maxCalories?: number;
+  /**
+   * Filter by aliment name (partial match)
+   */
+  aliment?: string;
+  /**
+   * Filter by equipment name (partial match)
+   */
+  equipment?: string;
+}
+
+/**
+ * Combined parameters for meals listing with pagination and filters
+ */
+export interface MealListParams extends MealPaginationParams, MealFilterParams {}
+
+/**
+ * Paginated response for meals
+ */
+export interface PaginatedMeals {
+  data: Meal[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
   };
 }

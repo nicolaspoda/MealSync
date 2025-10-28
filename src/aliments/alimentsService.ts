@@ -5,7 +5,7 @@ export type AlimentCreationParams = Omit<
   Aliment,
   "id" | "createdAt" | "updatedAt" | "meals" | "macros"
 > & {
-  macros?: { macroId: string; quantite: number }[];
+  macros?: { macroId: string; quantity: number }[];
 };
 
 export class AlimentsService {
@@ -60,7 +60,7 @@ export class AlimentsService {
         macros: {
           create: macros.map((macro) => ({
             macroId: macro.macroId,
-            quantite: macro.quantite,
+            quantity: macro.quantity,
           })),
         },
       },
@@ -111,7 +111,7 @@ export class AlimentsService {
           data: macros.map((macro) => ({
             alimentId: id,
             macroId: macro.macroId,
-            quantite: macro.quantite,
+            quantity: macro.quantity,
           })),
         });
       }

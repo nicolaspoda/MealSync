@@ -1,12 +1,12 @@
-import type { Meal } from "./meal";
+import type { Meal, PaginatedMeals, MealListParams } from "./meal";
 import { prisma } from "../shared/prisma";
 
 export type MealCreationParams = Omit<
   Meal,
   "id" | "createdAt" | "updatedAt" | "aliments" | "preparations" | "equipements"
 > & {
-  aliments?: { alimentId: string; quantite: number }[];
-  preparations?: { preparationId: string; ordre: number }[];
+  aliments?: { alimentId: string; quantity: number }[];
+  preparations?: { preparationId: string; order: number }[];
   equipements?: { equipmentId: string }[];
 };
 
@@ -25,10 +25,10 @@ export class MealsService {
             preparation: true,
           },
           orderBy: {
-            ordre: "asc",
+            order: "asc",
           },
         },
-        equipements: {
+        equipments: {
           include: {
             equipment: true,
           },
@@ -52,10 +52,10 @@ export class MealsService {
             preparation: true,
           },
           orderBy: {
-            ordre: "asc",
+            order: "asc",
           },
         },
-        equipements: {
+        equipments: {
           include: {
             equipment: true,
           },
@@ -67,6 +67,112 @@ export class MealsService {
     });
 
     return meals;
+  }
+
+  public async getAllPaginated(params: MealListParams = {}): Promise<PaginatedMeals> {
+    const {
+      page = 1,
+      limit = 10,
+      title,
+      minCalories,
+      maxCalories,
+      aliment,
+      equipment
+    } = params;
+
+    const skip = (page - 1) * limit;
+
+    // Build where clause for filters
+    const whereClause: any = {};
+
+    if (title) {
+      whereClause.title = {
+        contains: title
+      };
+    }
+
+    if (minCalories !== undefined || maxCalories !== undefined) {
+      whereClause.calories = {};
+      if (minCalories !== undefined) {
+        whereClause.calories.gte = minCalories;
+      }
+      if (maxCalories !== undefined) {
+        whereClause.calories.lte = maxCalories;
+      }
+    }
+
+    if (aliment) {
+      whereClause.aliments = {
+        some: {
+          aliment: {
+            name: {
+              contains: aliment
+            }
+          }
+        }
+      };
+    }
+
+    if (equipment) {
+      whereClause.equipments = {
+        some: {
+          equipment: {
+            name: {
+              contains: equipment
+            }
+          }
+        }
+      };
+    }
+
+    // Get total count for pagination
+    const total = await prisma.meal.count({
+      where: whereClause
+    });
+
+    // Get paginated results
+    const meals = await prisma.meal.findMany({
+      where: whereClause,
+      include: {
+        aliments: {
+          include: {
+            aliment: true,
+          },
+        },
+        preparations: {
+          include: {
+            preparation: true,
+          },
+          orderBy: {
+            order: "asc",
+          },
+        },
+        equipments: {
+          include: {
+            equipment: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: limit,
+    });
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: meals,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
   }
 
   public async create(mealCreationParams: MealCreationParams): Promise<Meal> {
@@ -83,16 +189,16 @@ export class MealsService {
         aliments: {
           create: aliments.map((aliment) => ({
             alimentId: aliment.alimentId,
-            quantite: aliment.quantite,
+            quantity: aliment.quantity,
           })),
         },
         preparations: {
           create: preparations.map((prep) => ({
             preparationId: prep.preparationId,
-            ordre: prep.ordre,
+            order: prep.order,
           })),
         },
-        equipements: {
+        equipments: {
           create: equipements.map((equip) => ({
             equipmentId: equip.equipmentId,
           })),
@@ -109,10 +215,10 @@ export class MealsService {
             preparation: true,
           },
           orderBy: {
-            ordre: "asc",
+            order: "asc",
           },
         },
-        equipements: {
+        equipments: {
           include: {
             equipment: true,
           },
@@ -144,10 +250,10 @@ export class MealsService {
             preparation: true,
           },
           orderBy: {
-            ordre: "asc",
+            order: "asc",
           },
         },
-        equipements: {
+        equipments: {
           include: {
             equipment: true,
           },
@@ -162,7 +268,7 @@ export class MealsService {
           data: aliments.map((aliment) => ({
             mealId: id,
             alimentId: aliment.alimentId,
-            quantite: aliment.quantite,
+            quantity: aliment.quantity,
           })),
         });
       }
@@ -175,16 +281,16 @@ export class MealsService {
           data: preparations.map((prep) => ({
             mealId: id,
             preparationId: prep.preparationId,
-            ordre: prep.ordre,
+            order: prep.order,
           })),
         });
       }
     }
 
     if (equipements !== undefined) {
-      await prisma.mealEquipement.deleteMany({ where: { mealId: id } });
+      await prisma.mealEquipment.deleteMany({ where: { mealId: id } });
       if (equipements.length > 0) {
-        await prisma.mealEquipement.createMany({
+        await prisma.mealEquipment.createMany({
           data: equipements.map((equip) => ({
             mealId: id,
             equipmentId: equip.equipmentId,
