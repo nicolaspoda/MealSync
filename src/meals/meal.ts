@@ -15,12 +15,12 @@ export interface Meal {
   id: UUID;
   /**
    * @isString title must be a string value
-   * @minLength 12 title must be at least 12 characters
+   * @minLength 3 title must be at least 3 characters
    * @maxLength 60 title must be at most 60 characters
    */
   title: string;
   /**
-   * @isString title must be a string value
+   * @isString description must be a string value
    */
   description: string;
   /**
@@ -28,8 +28,41 @@ export interface Meal {
    * @minimum 0 calories must be over 0
    */
   calories: number;
+  createdAt?: Date;
+  updatedAt?: Date;
   /**
-   * @minItems 1 at least 1 aliment is required
+   * @minItems 0 aliments array can be empty
    */
-  aliments: string[];
+  aliments?: MealAliment[];
+  preparations?: MealPreparation[];
+  equipements?: MealEquipement[];
+}
+
+export interface MealAliment {
+  alimentId: string;
+  quantite: number;
+  aliment?: {
+    id: string;
+    nom: string;
+    cal_100g: number;
+  };
+}
+
+export interface MealPreparation {
+  preparationId: string;
+  ordre: number;
+  preparation?: {
+    id: string;
+    etape: number;
+    description: string;
+    temps_estime: number;
+  };
+}
+
+export interface MealEquipement {
+  equipmentId: string;
+  equipment?: {
+    id: string;
+    nom: string;
+  };
 }

@@ -7,8 +7,12 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "tsoa:routes": "tsoa routes",
     "tsoa:spec": "tsoa spec",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "prisma:reset": "prisma migrate reset --force",
     "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
-    "build": "tsoa spec-and-routes && tsc",
+    "build": "prisma generate && tsoa spec-and-routes && tsc",
     "start": "node build/src/server.js"
   },
   "repository": {
@@ -22,7 +26,10 @@
   },
   "homepage": "https://github.com/nicolaspoda/MealSync#readme",
   "dependencies": {
+    "@prisma/client": "^6.18.0",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "prisma": "^6.18.0",
     "swagger-ui-express": "^5.0.1",
     "tsoa": "^6.6.0"
   },
