@@ -1,88 +1,88 @@
-import { PrismaClient } from '../src/generated/prisma';
+import { PrismaClient } from "../src/generated/prisma";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Starting seeding...');
+  console.log("Starting seeding...");
 
   const aliments = await Promise.all([
     prisma.aliment.upsert({
-      where: { nom: 'Poulet' },
+      where: { name: "Poulet" },
       update: {},
       create: {
-        nom: 'Poulet',
+        name: "Poulet",
         cal_100g: 165,
       },
     }),
     prisma.aliment.upsert({
-      where: { nom: 'Riz basmati' },
+      where: { name: "Riz basmati" },
       update: {},
       create: {
-        nom: 'Riz basmati',
+        name: "Riz basmati",
         cal_100g: 350,
       },
     }),
     prisma.aliment.upsert({
-      where: { nom: 'Brocolis' },
+      where: { name: "Brocolis" },
       update: {},
       create: {
-        nom: 'Brocolis',
+        name: "Brocolis",
         cal_100g: 34,
       },
     }),
     prisma.aliment.upsert({
-      where: { nom: 'Saumon' },
+      where: { name: "Saumon" },
       update: {},
       create: {
-        nom: 'Saumon',
+        name: "Saumon",
         cal_100g: 208,
       },
     }),
     prisma.aliment.upsert({
-      where: { nom: 'Quinoa' },
+      where: { name: "Quinoa" },
       update: {},
       create: {
-        nom: 'Quinoa',
+        name: "Quinoa",
         cal_100g: 368,
       },
     }),
     prisma.aliment.upsert({
-      where: { nom: 'Épinards' },
+      where: { name: "Épinards" },
       update: {},
       create: {
-        nom: 'Épinards',
+        name: "Épinards",
         cal_100g: 23,
       },
     }),
   ]);
 
-  const equipements = await Promise.all([
+  const equipments = await Promise.all([
     prisma.equipment.upsert({
-      where: { nom: 'Poêle' },
+      where: { name: "Poêle" },
       update: {},
       create: {
-        nom: 'Poêle',
+        name: "Poêle",
       },
     }),
     prisma.equipment.upsert({
-      where: { nom: 'Casserole' },
+      where: { name: "Casserole" },
       update: {},
       create: {
-        nom: 'Casserole',
+        name: "Casserole",
       },
     }),
     prisma.equipment.upsert({
-      where: { nom: 'Four' },
+      where: { name: "Four" },
       update: {},
       create: {
-        nom: 'Four',
+        name: "Four",
       },
     }),
     prisma.equipment.upsert({
-      where: { nom: 'Cuiseur vapeur' },
+      where: { name: "Cuiseur vapeur" },
       update: {},
       create: {
-        nom: 'Cuiseur vapeur',
+        name: "Cuiseur vapeur",
       },
     }),
   ]);
@@ -90,97 +90,98 @@ async function main() {
   const preparations = await Promise.all([
     prisma.preparation.create({
       data: {
-        etape: 1,
-        description: 'Faire cuire le riz dans l\'eau bouillante salée',
-        temps_estime: 15,
+        step: 1,
+        description: "Faire cuire le riz dans l'eau bouillante salée",
+        estimated_time: 15,
       },
     }),
     prisma.preparation.create({
       data: {
-        etape: 2,
-        description: 'Faire revenir le poulet dans la poêle avec un peu d\'huile',
-        temps_estime: 10,
+        step: 2,
+        description:
+          "Faire revenir le poulet dans la poêle avec un peu d'huile",
+        estimated_time: 10,
       },
     }),
     prisma.preparation.create({
       data: {
-        etape: 3,
-        description: 'Cuire les brocolis à la vapeur',
-        temps_estime: 8,
+        step: 3,
+        description: "Cuire les brocolis à la vapeur",
+        estimated_time: 8,
       },
     }),
     prisma.preparation.create({
       data: {
-        etape: 1,
-        description: 'Préchauffer le four à 180°C',
-        temps_estime: 5,
+        step: 1,
+        description: "Préchauffer le four à 180°C",
+        estimated_time: 5,
       },
     }),
     prisma.preparation.create({
       data: {
-        etape: 2,
-        description: 'Faire cuire le saumon au four',
-        temps_estime: 20,
+        step: 2,
+        description: "Faire cuire le saumon au four",
+        estimated_time: 20,
       },
     }),
     prisma.preparation.create({
       data: {
-        etape: 3,
-        description: 'Faire cuire le quinoa',
-        temps_estime: 12,
+        step: 3,
+        description: "Faire cuire le quinoa",
+        estimated_time: 12,
       },
     }),
   ]);
 
   const macros = await Promise.all([
     prisma.macro.upsert({
-      where: { nom: 'Protéines' },
+      where: { name: "Protéines" },
       update: {},
       create: {
-        nom: 'Protéines',
+        name: "Protéines",
       },
     }),
     prisma.macro.upsert({
-      where: { nom: 'Glucides' },
+      where: { name: "Glucides" },
       update: {},
       create: {
-        nom: 'Glucides',
+        name: "Glucides",
       },
     }),
     prisma.macro.upsert({
-      where: { nom: 'Lipides' },
+      where: { name: "Lipides" },
       update: {},
       create: {
-        nom: 'Lipides',
+        name: "Lipides",
       },
     }),
     prisma.macro.upsert({
-      where: { nom: 'Fibres' },
+      where: { name: "Fibres" },
       update: {},
       create: {
-        nom: 'Fibres',
+        name: "Fibres",
       },
     }),
   ]);
 
   const meal1 = await prisma.meal.create({
     data: {
-      title: 'Poulet au riz et brocolis',
-      description: 'Un repas équilibré riche en protéines et légumes',
+      title: "Poulet au riz et brocolis",
+      description: "Un repas équilibré riche en protéines et légumes",
       calories: 450,
       aliments: {
         create: [
           {
             alimentId: aliments[0].id,
-            quantite: 150,
+            quantity: 150,
           },
           {
             alimentId: aliments[1].id,
-            quantite: 80,
+            quantity: 80,
           },
           {
             alimentId: aliments[2].id,
-            quantite: 200,
+            quantity: 200,
           },
         ],
       },
@@ -188,28 +189,28 @@ async function main() {
         create: [
           {
             preparationId: preparations[0].id,
-            ordre: 1,
+            order: 1,
           },
           {
             preparationId: preparations[1].id,
-            ordre: 2,
+            order: 2,
           },
           {
             preparationId: preparations[2].id,
-            ordre: 3,
+            order: 3,
           },
         ],
       },
-      equipements: {
+      equipments: {
         create: [
           {
-            equipmentId: equipements[0].id,
+            equipmentId: equipments[0].id,
           },
           {
-            equipmentId: equipements[1].id,
+            equipmentId: equipments[1].id,
           },
           {
-            equipmentId: equipements[3].id,
+            equipmentId: equipments[3].id,
           },
         ],
       },
@@ -218,22 +219,22 @@ async function main() {
 
   const meal2 = await prisma.meal.create({
     data: {
-      title: 'Saumon grillé au quinoa',
-      description: 'Saumon riche en oméga-3 accompagné de quinoa et épinards',
+      title: "Saumon grillé au quinoa",
+      description: "Saumon riche en oméga-3 accompagné de quinoa et épinards",
       calories: 520,
       aliments: {
         create: [
           {
             alimentId: aliments[3].id,
-            quantite: 120,
+            quantity: 120,
           },
           {
             alimentId: aliments[4].id,
-            quantite: 70,
+            quantity: 70,
           },
           {
             alimentId: aliments[5].id,
-            quantite: 150,
+            quantity: 150,
           },
         ],
       },
@@ -241,25 +242,25 @@ async function main() {
         create: [
           {
             preparationId: preparations[3].id,
-            ordre: 1,
+            order: 1,
           },
           {
             preparationId: preparations[4].id,
-            ordre: 2,
+            order: 2,
           },
           {
             preparationId: preparations[5].id,
-            ordre: 3,
+            order: 3,
           },
         ],
       },
-      equipements: {
+      equipments: {
         create: [
           {
-            equipmentId: equipements[2].id,
+            equipmentId: equipments[2].id,
           },
           {
-            equipmentId: equipements[1].id,
+            equipmentId: equipments[1].id,
           },
         ],
       },
@@ -271,43 +272,43 @@ async function main() {
       data: {
         alimentId: aliments[0].id,
         macroId: macros[0].id,
-        quantite: 31,
+        quantity: 31,
       },
     }),
     prisma.alimentMacro.create({
       data: {
         alimentId: aliments[1].id,
         macroId: macros[1].id,
-        quantite: 78,
+        quantity: 78,
       },
     }),
     prisma.alimentMacro.create({
       data: {
         alimentId: aliments[2].id,
         macroId: macros[3].id,
-        quantite: 2.6,
+        quantity: 2.6,
       },
     }),
     prisma.alimentMacro.create({
       data: {
         alimentId: aliments[3].id,
         macroId: macros[0].id,
-        quantite: 25,
+        quantity: 25,
       },
     }),
     prisma.alimentMacro.create({
       data: {
         alimentId: aliments[3].id,
         macroId: macros[2].id,
-        quantite: 12,
+        quantity: 12,
       },
     }),
   ]);
 
-  console.log('Seeding completed successfully!');
+  console.log("Seeding completed successfully!");
   console.log(`Created:`);
   console.log(`   - ${aliments.length} aliments`);
-  console.log(`   - ${equipements.length} équipements`);
+  console.log(`   - ${equipments.length} équipements`);
   console.log(`   - ${preparations.length} préparations`);
   console.log(`   - ${macros.length} macros`);
   console.log(`   - 2 repas d'exemple`);
@@ -315,7 +316,7 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error('Error during seeding:', e);
+    console.error("Error during seeding:", e);
     process.exit(1);
   })
   .finally(async () => {
