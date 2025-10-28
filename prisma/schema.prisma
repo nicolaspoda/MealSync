@@ -114,3 +114,20 @@ model AlimentMacro {
   @@id([alimentId, macroId])
   @@map("aliment_macros")
 }
+
+model ApiKey {
+  id         String @id @default(uuid())
+  keyHash    String @unique
+  name       String?
+  createdAt  DateTime @default(now())
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  isActive   Boolean  @default(true)
+
+
+  // key_hash     String   @unique @db.VarChar(64)
+  // user_id      Int
+  // name         String?  @db.VarChar(100)
+
+  @@map("api_key")
+}
