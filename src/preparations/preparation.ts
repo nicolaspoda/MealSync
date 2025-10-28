@@ -4,19 +4,19 @@ import { UUID } from "../shared/uuid";
  * The Preparation object represents a cooking step in meal preparation.
  * @example {
  *  "id": "52907745-7672-470e-a803-a2f8feb52944",
- *  "etape": 1,
+ *  "step": 1,
  *  "description": "Faire cuire le riz dans l'eau bouillante salée",
- *  "temps_estime": 15,
+ *  "estimated_time": 15,
  *  "meals": []
  * }
  */
 export interface Preparation {
   id: UUID;
   /**
-   * @isInt etape must be an integer
-   * @minimum 1 etape must be at least 1
+   * @isInt step must be an integer
+   * @minimum 1 step must be at least 1
    */
-  etape: number;
+  step: number;
   /**
    * @isString description must be a string value
    * @minLength 5 description must be at least 5 characters
@@ -24,10 +24,10 @@ export interface Preparation {
    */
   description: string;
   /**
-   * @isInt temps_estime must be an integer
-   * @minimum 1 temps_estime must be at least 1 minute
+   * @isInt estimated_time must be an integer
+   * @minimum 1 estimated_time must be at least 1 minute
    */
-  temps_estime: number;
+  estimated_time: number;
   /**
    * @minItems 0 meals array can be empty
    */
@@ -36,7 +36,7 @@ export interface Preparation {
 
 export interface PreparationMeal {
   mealId: string;
-  ordre: number;
+  order: number;
   meal?: {
     id: string;
     title: string;

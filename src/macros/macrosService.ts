@@ -32,7 +32,7 @@ export class MacrosService {
         },
       },
       orderBy: {
-        nom: "asc",
+        name: "asc",
       },
     });
 
