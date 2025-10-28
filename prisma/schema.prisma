@@ -12,7 +12,7 @@ datasource db {
 }
 
 model Meal {
-  id           String        @id @default(cuid())
+  id           String        @id @default(uuid())
   title        String
   description  String
   calories     Int
@@ -27,7 +27,7 @@ model Meal {
 }
 
 model Equipment {
-  id   String @id @default(cuid())
+  id   String @id @default(uuid())
   nom  String @unique
   
   meals MealEquipement[]
@@ -36,7 +36,7 @@ model Equipment {
 }
 
 model Preparation {
-  id           String @id @default(cuid())
+  id           String @id @default(uuid())
   etape        Int
   description  String
   temps_estime Int
@@ -47,7 +47,7 @@ model Preparation {
 }
 
 model Aliment {
-  id        String @id @default(cuid())
+  id        String @id @default(uuid())
   nom       String @unique
   cal_100g  Int
   createdAt DateTime @default(now())
@@ -60,7 +60,7 @@ model Aliment {
 }
 
 model Macro {
-  id   String @id @default(cuid())
+  id   String @id @default(uuid())
   nom  String @unique
   
   aliments AlimentMacro[]
