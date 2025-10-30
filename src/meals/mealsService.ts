@@ -312,4 +312,85 @@ export class MealsService {
       return false;
     }
   }
+
+  public async getQuickMeals(
+    maxTime: number, 
+    params: { page?: number; limit?: number } = {}
+  ): Promise<PaginatedMeals> {
+    try {
+      console.log(`[DEBUG] getQuickMeals called with maxTime: ${maxTime}, params:`, params);
+      
+      // Validate maxTime parameter
+      if (!maxTime || maxTime <= 0) {
+        throw new Error("maxTime parameter must be a positive number");
+      }
+
+      const { page = 1, limit = 10 } = params;
+      console.log(`[DEBUG] Using page: ${page}, limit: ${limit}`);
+
+      // Get all meals with their preparation times
+      const allMeals = await prisma.meal.findMany({
+        include: {
+          aliments: {
+            include: {
+              aliment: true,
+            },
+          },
+          preparations: {
+            include: {
+              preparation: true,
+            },
+            orderBy: {
+              order: "asc",
+            },
+          },
+          equipments: {
+            include: {
+              equipment: true,
+            },
+          },
+        },
+      });
+
+      console.log(`[DEBUG] Found ${allMeals.length} total meals`);
+
+      // Filter meals by total preparation time and sort by time
+      const filteredMeals = allMeals
+        .map(meal => {
+          const totalTime = meal.preparations.reduce(
+            (sum, prep) => sum + (prep.preparation?.estimated_time || 0), 
+            0
+          );
+          console.log(`[DEBUG] Meal "${meal.title}" has preparation time: ${totalTime} minutes`);
+          return { ...meal, totalPreparationTime: totalTime };
+        })
+        .filter(meal => meal.totalPreparationTime <= maxTime)
+        .sort((a, b) => a.totalPreparationTime - b.totalPreparationTime);
+
+      console.log(`[DEBUG] After filtering by maxTime ${maxTime}: ${filteredMeals.length} meals`);
+
+      // Apply pagination
+      const total = filteredMeals.length;
+      const totalPages = Math.ceil(total / limit);
+      const skip = (page - 1) * limit;
+      const paginatedMeals = filteredMeals.slice(skip, skip + limit);
+
+      console.log(`[DEBUG] Returning ${paginatedMeals.length} meals after pagination`);
+
+      return {
+        data: paginatedMeals,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNext: page < totalPages,
+          hasPrev: page > 1,
+        },
+      };
+    } catch (error) {
+      console.error(`[ERROR] getQuickMeals failed:`, error);
+      throw error;
+    }
+  }
 }
