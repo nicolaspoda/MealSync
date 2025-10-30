@@ -13,7 +13,7 @@
     "prisma:reset": "prisma migrate reset --force",
     "prisma:seed": "ts-node prisma/seed.ts",
     "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
-    "build": "prisma generate && tsoa spec-and-routes && tsc",
+    "build": "prisma generate && tsoa spec-and-routes && tsc && cp -r src/generated/ build/src/generated/",
     "start": "node build/src/server.js",
     "prism:mock": "prism mock ./build/swagger.json"
   },
