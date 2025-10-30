@@ -133,3 +133,36 @@ export interface PaginatedMeals {
     hasPrev: boolean;
   };
 }
+
+/**
+ * Detailed nutritional analysis of a meal
+ */
+export interface NutritionAnalysis {
+  mealId: string;
+  mealTitle: string;
+  totalCalories: number;
+  macronutrients: {
+    totalProtein: number;
+    totalCarbohydrates: number;
+    totalLipids: number;
+    totalFiber: number;
+  };
+  alimentBreakdown: {
+    alimentName: string;
+    quantity: number;
+    calories: number;
+    macros: {
+      protein: number;
+      carbohydrates: number;
+      lipids: number;
+      fiber: number;
+    };
+  }[];
+  nutritionalDensity: {
+    caloriesPerGram: number;
+    proteinPercentage: number;
+    carbohydratesPercentage: number;
+    lipidsPercentage: number;
+  };
+  preparationTime: number;
+}
