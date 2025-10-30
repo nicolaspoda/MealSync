@@ -13,7 +13,7 @@ import {
   Security,
   Tags,
 } from "tsoa";
-import type { Meal, PaginatedMeals, MealListParams } from "./meal";
+import type { Meal, PaginatedMeals, MealListParams, NutritionAnalysis } from "./meal";
 import { MealCreationParams, MealsService } from "./mealsService";
 import ValidateErrorJSON from "../shared/validationErrorJSON";
 
@@ -73,6 +73,53 @@ export class MealsController extends Controller {
     @Query() limit?: number
   ): Promise<PaginatedMeals> {
     return new MealsService().getQuickMeals(maxTime, { page, limit });
+  }
+
+  /**
+   * Get personalized meal suggestions based on user preferences, nutritional objectives and filters.
+   * Returns meals that match dietary preferences, caloric targets, excluded ingredients, and available equipment.
+   * @param targetCalories Target calories for suggested meals
+   * @param maxTime Maximum preparation time in minutes
+   * @param excludedAliments Comma-separated list of aliment names to exclude
+   * @param availableEquipments Comma-separated list of equipment IDs available
+   * @param preferredMacros Preferred macronutrient (protein, carbohydrates, lipids)
+   * @param limit Number of suggestions to return (default: 5, max: 20)
+   */
+  @Get("suggestions")
+  @Security("api_key")
+  public async getMealSuggestions(
+    @Query() targetCalories?: number,
+    @Query() maxTime?: number,
+    @Query() excludedAliments?: string,
+    @Query() availableEquipments?: string,
+    @Query() preferredMacros?: string,
+    @Query() limit?: number
+  ): Promise<Meal[]> {
+    const filters = {
+      targetCalories,
+      maxTime,
+      excludedAliments: excludedAliments ? excludedAliments.split(',') : undefined,
+      availableEquipments: availableEquipments ? availableEquipments.split(',') : undefined,
+      preferredMacros,
+      limit: limit || 5
+    };
+    return new MealsService().getSuggestions(filters);
+  }
+
+  /**
+   * Analyze the nutritional composition of a specific meal.
+   * Returns detailed breakdown of calories, macronutrients, and nutritional density.
+   * @param mealId The meal's identifier
+   * @example mealId "52907745-7672-470e-a803-a2f8feb52944"
+   */
+  @Get("{mealId}/nutrition-analysis")
+  public async getMealNutritionAnalysis(@Path() mealId: string): Promise<NutritionAnalysis> {
+    const analysis = await new MealsService().getNutritionAnalysis(mealId);
+    if (!analysis) {
+      this.setStatus(404);
+      throw new Error("Meal not found");
+    }
+    return analysis;
   }
 
   /**

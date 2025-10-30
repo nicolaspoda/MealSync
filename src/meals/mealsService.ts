@@ -1,4 +1,4 @@
-import type { Meal, PaginatedMeals, MealListParams } from "./meal";
+import type { Meal, PaginatedMeals, MealListParams, NutritionAnalysis } from "./meal";
 import { prisma } from "../shared/prisma";
 
 export type MealCreationParams = Omit<
@@ -9,6 +9,15 @@ export type MealCreationParams = Omit<
   preparations?: { preparationId: string; order: number }[];
   equipements?: { equipmentId: string }[];
 };
+
+interface SuggestionFilters {
+  targetCalories?: number;
+  maxTime?: number;
+  excludedAliments?: string[];
+  availableEquipments?: string[];
+  preferredMacros?: string;
+  limit: number;
+}
 
 export class MealsService {
   public async get(id: string): Promise<Meal | null> {
@@ -392,5 +401,282 @@ export class MealsService {
       console.error(`[ERROR] getQuickMeals failed:`, error);
       throw error;
     }
+  }
+
+  public async getSuggestions(filters: SuggestionFilters): Promise<Meal[]> {
+    try {
+      console.log(`[DEBUG] getSuggestions called with filters:`, filters);
+      
+      // Build where clause based on filters
+      const whereClause: any = {};
+      
+      // Filter by excluded aliments
+      if (filters.excludedAliments && filters.excludedAliments.length > 0) {
+        whereClause.aliments = {
+          none: {
+            aliment: {
+              name: {
+                in: filters.excludedAliments
+              }
+            }
+          }
+        };
+      }
+      
+      // Filter by available equipment
+      if (filters.availableEquipments && filters.availableEquipments.length > 0) {
+        whereClause.equipments = {
+          every: {
+            equipmentId: {
+              in: filters.availableEquipments
+            }
+          }
+        };
+      }
+      
+      // Get all matching meals
+      const meals = await prisma.meal.findMany({
+        where: whereClause,
+        include: {
+          aliments: {
+            include: {
+              aliment: {
+                include: {
+                  macros: {
+                    include: {
+                      macro: true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          preparations: {
+            include: {
+              preparation: true
+            },
+            orderBy: {
+              order: "asc"
+            }
+          },
+          equipments: {
+            include: {
+              equipment: true
+            }
+          }
+        }
+      });
+      
+      console.log(`[DEBUG] Found ${meals.length} meals matching base filters`);
+      
+      // Calculate additional metrics and apply remaining filters
+      const enrichedMeals = meals.map(meal => {
+        const preparationTime = meal.preparations.reduce(
+          (sum, prep) => sum + (prep.preparation?.estimated_time || 0),
+          0
+        );
+        
+        const nutrition = this.calculateMealNutrition(meal);
+        
+        return {
+          ...meal,
+          preparationTime,
+          nutrition
+        };
+      });
+      
+      // Apply time filter
+      let filteredMeals = enrichedMeals;
+      if (filters.maxTime) {
+        filteredMeals = filteredMeals.filter(meal => meal.preparationTime <= filters.maxTime!);
+      }
+      
+      // Apply calorie filter (within 20% range)
+      if (filters.targetCalories) {
+        const tolerance = filters.targetCalories * 0.2;
+        filteredMeals = filteredMeals.filter(meal => 
+          Math.abs(meal.calories - filters.targetCalories!) <= tolerance
+        );
+      }
+      
+      // Sort by preferred macros or default scoring
+      filteredMeals.sort((a, b) => {
+        if (filters.preferredMacros) {
+          const macroA = this.getMacroScore(a.nutrition, filters.preferredMacros);
+          const macroB = this.getMacroScore(b.nutrition, filters.preferredMacros);
+          return macroB - macroA; // Higher score first
+        }
+        
+        // Default: prefer balanced nutrition and shorter preparation time
+        const scoreA = a.nutrition.protein + a.nutrition.carbohydrates + a.nutrition.lipids - a.preparationTime * 0.1;
+        const scoreB = b.nutrition.protein + b.nutrition.carbohydrates + b.nutrition.lipids - b.preparationTime * 0.1;
+        return scoreB - scoreA;
+      });
+      
+      console.log(`[DEBUG] Returning ${Math.min(filteredMeals.length, filters.limit)} suggestions`);
+      
+      return filteredMeals.slice(0, filters.limit);
+    } catch (error) {
+      console.error(`[ERROR] getSuggestions failed:`, error);
+      throw error;
+    }
+  }
+  
+  public async getNutritionAnalysis(mealId: string): Promise<NutritionAnalysis | null> {
+    try {
+      console.log(`[DEBUG] getNutritionAnalysis called for meal: ${mealId}`);
+      
+      const meal = await prisma.meal.findUnique({
+        where: { id: mealId },
+        include: {
+          aliments: {
+            include: {
+              aliment: {
+                include: {
+                  macros: {
+                    include: {
+                      macro: true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          preparations: {
+            include: {
+              preparation: true
+            },
+            orderBy: {
+              order: "asc"
+            }
+          }
+        }
+      });
+      
+      if (!meal) {
+        return null;
+      }
+      
+      let totalProtein = 0;
+      let totalCarbohydrates = 0;
+      let totalLipids = 0;
+      let totalFiber = 0;
+      let totalWeight = 0;
+      
+      const alimentBreakdown = meal.aliments.map(mealAliment => {
+        const quantity = mealAliment.quantity;
+        const portionFactor = quantity / 100; // Convert to 100g portions
+        totalWeight += quantity;
+        
+        const alimentCalories = (mealAliment.aliment.cal_100g * portionFactor);
+        
+        let protein = 0, carbs = 0, lipids = 0, fiber = 0;
+        
+        mealAliment.aliment.macros.forEach(alimentMacro => {
+          const macroName = alimentMacro.macro.name.toLowerCase();
+          const macroQuantity = alimentMacro.quantity * portionFactor;
+          
+          if (macroName.includes('protéine') || macroName.includes('protein')) {
+            protein = macroQuantity;
+            totalProtein += macroQuantity;
+          } else if (macroName.includes('glucide') || macroName.includes('carb')) {
+            carbs = macroQuantity;
+            totalCarbohydrates += macroQuantity;
+          } else if (macroName.includes('lipide') || macroName.includes('fat')) {
+            lipids = macroQuantity;
+            totalLipids += macroQuantity;
+          } else if (macroName.includes('fibre')) {
+            fiber = macroQuantity;
+            totalFiber += macroQuantity;
+          }
+        });
+        
+        return {
+          alimentName: mealAliment.aliment.name,
+          quantity: quantity,
+          calories: Math.round(alimentCalories),
+          macros: {
+            protein: Math.round(protein * 10) / 10,
+            carbohydrates: Math.round(carbs * 10) / 10,
+            lipids: Math.round(lipids * 10) / 10,
+            fiber: Math.round(fiber * 10) / 10
+          }
+        };
+      });
+      
+      const preparationTime = meal.preparations.reduce(
+        (sum, prep) => sum + (prep.preparation?.estimated_time || 0),
+        0
+      );
+      
+      const totalMacros = totalProtein + totalCarbohydrates + totalLipids;
+      
+      const analysis: NutritionAnalysis = {
+        mealId: meal.id,
+        mealTitle: meal.title,
+        totalCalories: meal.calories,
+        macronutrients: {
+          totalProtein: Math.round(totalProtein * 10) / 10,
+          totalCarbohydrates: Math.round(totalCarbohydrates * 10) / 10,
+          totalLipids: Math.round(totalLipids * 10) / 10,
+          totalFiber: Math.round(totalFiber * 10) / 10
+        },
+        alimentBreakdown,
+        nutritionalDensity: {
+          caloriesPerGram: totalWeight > 0 ? Math.round((meal.calories / totalWeight) * 100) / 100 : 0,
+          proteinPercentage: totalMacros > 0 ? Math.round((totalProtein / totalMacros) * 100) : 0,
+          carbohydratesPercentage: totalMacros > 0 ? Math.round((totalCarbohydrates / totalMacros) * 100) : 0,
+          lipidsPercentage: totalMacros > 0 ? Math.round((totalLipids / totalMacros) * 100) : 0
+        },
+        preparationTime
+      };
+      
+      console.log(`[DEBUG] Nutrition analysis completed for meal: ${meal.title}`);
+      return analysis;
+    } catch (error) {
+      console.error(`[ERROR] getNutritionAnalysis failed:`, error);
+      throw error;
+    }
+  }
+  
+  private calculateMealNutrition(meal: any) {
+    let totalProtein = 0;
+    let totalCarbohydrates = 0;
+    let totalLipids = 0;
+    
+    meal.aliments.forEach((mealAliment: any) => {
+      const quantity = mealAliment.quantity / 100; // Convert to 100g portions
+      
+      mealAliment.aliment.macros.forEach((alimentMacro: any) => {
+        const macroName = alimentMacro.macro.name.toLowerCase();
+        const macroQuantity = alimentMacro.quantity * quantity;
+        
+        if (macroName.includes('protéine') || macroName.includes('protein')) {
+          totalProtein += macroQuantity;
+        } else if (macroName.includes('glucide') || macroName.includes('carb')) {
+          totalCarbohydrates += macroQuantity;
+        } else if (macroName.includes('lipide') || macroName.includes('fat')) {
+          totalLipids += macroQuantity;
+        }
+      });
+    });
+    
+    return {
+      protein: Math.round(totalProtein),
+      carbohydrates: Math.round(totalCarbohydrates),
+      lipids: Math.round(totalLipids)
+    };
+  }
+  
+  private getMacroScore(nutrition: any, preferredMacro: string): number {
+    const macro = preferredMacro.toLowerCase();
+    if (macro.includes('protein')) {
+      return nutrition.protein;
+    } else if (macro.includes('carb') || macro.includes('glucide')) {
+      return nutrition.carbohydrates;
+    } else if (macro.includes('lipid') || macro.includes('fat')) {
+      return nutrition.lipids;
+    }
+    return 0;
   }
 }
