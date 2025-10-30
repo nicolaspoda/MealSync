@@ -1,4 +1,4 @@
-import type { Meal, PaginatedMeals, MealListParams, NutritionAnalysis } from "./meal";
+import type { Meal, PaginatedMeals, MealListParams, MealAnalysisParams, MealAnalysisResult, MealAnalysisDBParams, NutritionAnalysis } from "./meal";
 import { prisma } from "../shared/prisma";
 
 export type MealCreationParams = Omit<
@@ -236,6 +236,167 @@ export class MealsService {
     });
 
     return meal;
+  }
+
+  /**
+   * Analyze a payload of aliments (not necessarily persisted in DB).
+   * For each aliment, prefer nutrition values provided in the payload. If
+   * those are missing and an alimentId is given, try to fetch nutrition from DB.
+   */
+  public async analyzePayload(params: MealAnalysisParams): Promise<MealAnalysisResult> {
+    const perAliment: MealAnalysisResult['perAliment'] = [];
+    let totalCalories = 0;
+    let totalProtein = 0;
+    let totalCarbs = 0;
+    let totalFat = 0;
+    const warnings: string[] = [];
+
+    const aliments = params.aliments || [];
+
+    for (const a of aliments) {
+      let { alimentId, name, quantity, cal_100g, protein_100g, carbs_100g, fat_100g } = a;
+
+      // if no nutrition provided in payload, try to get from DB using alimentId
+      if (
+        alimentId &&
+        cal_100g === undefined &&
+        protein_100g === undefined &&
+        carbs_100g === undefined &&
+        fat_100g === undefined
+      ) {
+        const dbAlim = await prisma.aliment.findUnique({ where: { id: alimentId } });
+        if (dbAlim) {
+          // assign if present in DB
+          // some aliment records in the project may only have `cal_100g`.
+          // guard with any casts to avoid type errors if the prisma typing doesn't include macros.
+          const dbAny: any = dbAlim as any;
+          cal_100g = cal_100g ?? dbAny.cal_100g;
+          protein_100g = protein_100g ?? dbAny.protein_100g;
+          carbs_100g = carbs_100g ?? dbAny.carbs_100g;
+          fat_100g = fat_100g ?? dbAny.fat_100g;
+          name = name ?? dbAny.name;
+        }
+      }
+
+      const factor = (quantity ?? 0) / 100;
+
+      const calories = cal_100g != null ? Math.round(cal_100g * factor) : 0;
+      const protein = protein_100g != null ? Math.round(protein_100g * factor * 100) / 100 : 0;
+      const carbs = carbs_100g != null ? Math.round(carbs_100g * factor * 100) / 100 : 0;
+      const fat = fat_100g != null ? Math.round(fat_100g * factor * 100) / 100 : 0;
+
+      if (
+        cal_100g === undefined &&
+        protein_100g === undefined &&
+        carbs_100g === undefined &&
+        fat_100g === undefined
+      ) {
+        warnings.push(`Missing nutrition per 100g for aliment ${name ?? alimentId ?? '<unknown>'}`);
+      }
+
+      perAliment.push({ alimentId, name, quantity, calories, protein, carbs, fat });
+
+      totalCalories += calories;
+      totalProtein += protein;
+      totalCarbs += carbs;
+      totalFat += fat;
+    }
+
+    // round totals to 2 decimals where appropriate
+    totalProtein = Math.round(totalProtein * 100) / 100;
+    totalCarbs = Math.round(totalCarbs * 100) / 100;
+    totalFat = Math.round(totalFat * 100) / 100;
+
+    return {
+      totalCalories,
+      totalProtein,
+      totalCarbs,
+      totalFat,
+      perAliment,
+      warnings: warnings.length > 0 ? warnings : undefined,
+    };
+  }
+
+  /**
+   * Analyze a list of aliment references (alimentId + quantity). This simulates
+   * a meal using the nutrition info stored in the database without creating any
+   * meal record.
+   */
+  public async analyzeFromDb(params: MealAnalysisDBParams): Promise<MealAnalysisResult> {
+    const perAliment: MealAnalysisResult['perAliment'] = [];
+    let totalCalories = 0;
+    let totalProtein = 0;
+    let totalCarbs = 0;
+    let totalFat = 0;
+    const warnings: string[] = [];
+
+    const items = params.aliments || [];
+
+    const ids = Array.from(new Set(items.map((a) => a.alimentId).filter(Boolean) as string[]));
+    const names = Array.from(new Set(items.map((a) => a.name).filter(Boolean) as string[]));
+
+    // Build prisma where clause depending on provided ids/names
+    const or: any[] = [];
+    if (ids.length > 0) or.push({ id: { in: ids } });
+    // match names exactly (case-sensitive). If you prefer case-insensitive matching,
+    // we can change to equals + mode: 'insensitive' per name.
+    for (const n of names) or.push({ name: n });
+
+    const dbAliments = or.length > 0 ? await prisma.aliment.findMany({ where: { OR: or } }) : [];
+    const mapById: Record<string, any> = {};
+    const mapByName: Record<string, any> = {};
+    for (const d of dbAliments) {
+      const anyd: any = d;
+      if (anyd.id) mapById[anyd.id] = anyd;
+      if (anyd.name) mapByName[anyd.name] = anyd;
+    }
+
+    for (const a of items) {
+      const { alimentId, name, quantity } = a;
+      // prefer id lookup, fall back to name lookup
+      const dbAny = alimentId ? mapById[alimentId] : (name ? mapByName[name] : undefined);
+
+      if (!dbAny) {
+        warnings.push(`Aliment ${alimentId ?? name ?? '<unknown>'} not found in database`);
+      }
+
+      const resolvedName = dbAny?.name ?? name;
+      const cal_100g = dbAny?.cal_100g;
+      const protein_100g = dbAny?.protein_100g;
+      const carbs_100g = dbAny?.carbs_100g;
+      const fat_100g = dbAny?.fat_100g;
+
+      const factor = (quantity ?? 0) / 100;
+
+      const calories = cal_100g != null ? Math.round(cal_100g * factor) : 0;
+      const protein = protein_100g != null ? Math.round(protein_100g * factor * 100) / 100 : 0;
+      const carbs = carbs_100g != null ? Math.round(carbs_100g * factor * 100) / 100 : 0;
+      const fat = fat_100g != null ? Math.round(fat_100g * factor * 100) / 100 : 0;
+
+      if (cal_100g === undefined && protein_100g === undefined && carbs_100g === undefined && fat_100g === undefined) {
+        warnings.push(`Missing nutrition data for aliment ${name ?? alimentId}`);
+      }
+
+      perAliment.push({ alimentId, name, quantity, calories, protein, carbs, fat });
+
+      totalCalories += calories;
+      totalProtein += protein;
+      totalCarbs += carbs;
+      totalFat += fat;
+    }
+
+    totalProtein = Math.round(totalProtein * 100) / 100;
+    totalCarbs = Math.round(totalCarbs * 100) / 100;
+    totalFat = Math.round(totalFat * 100) / 100;
+
+    return {
+      totalCalories,
+      totalProtein,
+      totalCarbs,
+      totalFat,
+      perAliment,
+      warnings: warnings.length > 0 ? warnings : undefined,
+    };
   }
 
   public async update(
