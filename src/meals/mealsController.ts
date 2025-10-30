@@ -13,7 +13,7 @@ import {
   Security,
   Tags,
 } from "tsoa";
-import type { Meal, PaginatedMeals, MealListParams, NutritionAnalysis } from "./meal";
+import type { Meal, PaginatedMeals, MealListParams, MealAnalysisParams, MealAnalysisResult, MealAnalysisDBParams, NutritionAnalysis } from "./meal";
 import { MealCreationParams, MealsService } from "./mealsService";
 import ValidateErrorJSON from "../shared/validationErrorJSON";
 
@@ -173,4 +173,36 @@ export class MealsController extends Controller {
     }
     this.setStatus(204);
   }
+  
+  /**
+   * Analyze a payload of aliments provided by the client (not persisted).
+   * Each aliment should provide a `quantity` in grams. Prefer providing
+   * nutrition values per 100g on the payload; if `alimentId` is present and
+   * nutrition is missing the server will try to look it up in the DB.
+   */
+  @Response<ValidateErrorJSON>(422, "Validation Failed")
+  @SuccessResponse("200", "Analysis computed")
+  @Post("analyze")
+  public async analyzeMealPayload(
+    @Body() payload: MealAnalysisParams
+  ): Promise<MealAnalysisResult> {
+    return await new MealsService().analyzePayload(payload);
+  }
+
+  /**
+   * Simulate a meal using aliments that already exist in the database.
+   * Client sends a list of `{ alimentId, quantity }` and the server fetches
+   * nutrition data from the `aliment` table and computes totals without
+   * creating any meal record.
+   */
+  @Response<ValidateErrorJSON>(422, "Validation Failed")
+  @SuccessResponse("200", "Analysis computed")
+  @Post("analyze/from-db")
+  public async analyzeMealFromDb(
+    @Body() payload: MealAnalysisDBParams
+  ): Promise<MealAnalysisResult> {
+    return await new MealsService().analyzeFromDb(payload);
+  }
 }
+
+

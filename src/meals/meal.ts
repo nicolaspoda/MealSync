@@ -68,6 +68,62 @@ export interface MealEquipment {
 }
 
 /**
+ * Input shape for a single aliment when running an on-the-fly analysis.
+ * Either provide an `alimentId` (server will try to look up nutrition data)
+ * or include nutrition values per 100g directly on the payload.
+ */
+export interface MealAnalysisAlimentInput {
+  alimentId?: string;
+  name?: string;
+  /** quantity in grams */
+  quantity: number;
+  cal_100g?: number;
+  protein_100g?: number;
+  carbs_100g?: number;
+  fat_100g?: number;
+}
+
+export interface MealAnalysisParams {
+  aliments: MealAnalysisAlimentInput[];
+}
+
+/**
+ * Payload when the client only provides references to aliments stored in DB
+ * and a quantity for each. The server will look up nutrition info from DB
+ * and compute the simulated meal without persisting it.
+ */
+export interface MealAnalysisAlimentRef {
+  /** Either provide an existing aliment id or the aliment name (server will try to resolve by id first, then by name) */
+  alimentId?: string;
+  name?: string;
+  /** quantity in grams */
+  quantity: number;
+}
+
+export interface MealAnalysisDBParams {
+  aliments: MealAnalysisAlimentRef[];
+}
+
+export interface MealAnalysisPerAliment {
+  alimentId?: string;
+  name?: string;
+  quantity: number;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
+export interface MealAnalysisResult {
+  totalCalories: number;
+  totalProtein: number;
+  totalCarbs: number;
+  totalFat: number;
+  perAliment: MealAnalysisPerAliment[];
+  warnings?: string[];
+}
+
+/**
  * Pagination parameters for meals listing
  */
 export interface MealPaginationParams {
