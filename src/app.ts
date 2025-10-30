@@ -7,7 +7,7 @@ import express, {
 } from "express";
 import { RegisterRoutes } from "../build/routes";
 import swaggerUi from "swagger-ui-express";
-import { ValidateError } from "tsoa";
+import { ValidateError } from "tsoa"; 
 
 export const app = express();
 
