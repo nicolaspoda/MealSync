@@ -60,6 +60,22 @@ export class MealsController extends Controller {
   }
 
   /**
+   * Retrieves meals that can be prepared within the specified time limit.
+   * @param maxTime Maximum preparation time in minutes
+   * @param page Page number (default: 1)
+   * @param limit Number of items per page (default: 10, max: 100)
+   */
+  @Get("quick")
+  @Security("api_key")
+  public async getQuickMeals(
+    @Query() maxTime: number,
+    @Query() page?: number,
+    @Query() limit?: number
+  ): Promise<PaginatedMeals> {
+    return new MealsService().getQuickMeals(maxTime, { page, limit });
+  }
+
+  /**
    * Retrieves the details of an existing meal.
    * Supply the unique meal ID and receive corresponding meal details.
    * @param mealId The meal's identifier
