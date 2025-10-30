@@ -50,6 +50,7 @@ app.use(function errorHandler(
     });
   }
   if (err instanceof Error) {
+    console.error(`Caught Error for ${req.path}:`, err);
     return res.status(500).json({
       message: "Internal Server Error",
     });
