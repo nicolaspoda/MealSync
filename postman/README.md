@@ -55,16 +55,18 @@ La collection est organisée par ressources :
 - **Aliments** : Gestion des aliments (5 endpoints)
 - **Equipments** : Gestion des équipements de cuisine (5 endpoints)
 - **Macros** : Gestion des macronutriments (5 endpoints)
-- **Meals** : Gestion des plats (11 endpoints)
-  - Liste, pagination, filtres
-  - Recherche rapide (par temps)
-  - Suggestions personnalisées
-  - Analyse nutritionnelle
-  - CRUD complet
+- **Meals** : Gestion des plats (7 endpoints)
+  - GET /meals : Liste consolidée avec paramètres optionnels (pagination, filtres, quick meals, suggestions)
+  - GET /meals/{id} : Détails d'un plat
+  - GET /meals/{id}/nutrition-analysis : Analyse nutritionnelle
+  - POST /meals : Créer un plat
+  - POST /meals/analyze : Analyser un repas (avec paramètre fromDb)
+  - PUT /meals/{id} : Mettre à jour
+  - DELETE /meals/{id} : Supprimer
 - **Preparations** : Gestion des étapes de préparation (5 endpoints)
 - **Meal Plans** : Génération de plans de repas (1 endpoint)
 
-**Total : 33 endpoints**
+**Total : 27 endpoints** (consolidation de 11 → 7 pour Meals)
 
 ## 🚀 Utilisation
 
@@ -96,8 +98,31 @@ Body: {
 
 #### GET - Plats paginés avec filtres
 ```
-GET {{base_url}}/meals/paginated?page=1&limit=10&minCalories=200&maxCalories=500
+GET {{base_url}}/meals?page=1&limit=10&minCalories=200&maxCalories=500
 Header: x-api-key: {{api_key}}
+```
+
+#### GET - Plats rapides
+```
+GET {{base_url}}/meals?maxTime=30
+Header: x-api-key: {{api_key}}
+```
+
+#### GET - Suggestions personnalisées
+```
+GET {{base_url}}/meals?targetCalories=2000&excludedAliments=Poulet&preferredMacros=protein
+Header: x-api-key: {{api_key}}
+```
+
+#### POST - Analyser un repas depuis la DB
+```
+POST {{base_url}}/meals/analyze?fromDb=true
+Header: x-api-key: {{api_key}}
+Body: {
+  "aliments": [
+    { "alimentId": "...", "quantity": 150 }
+  ]
+}
 ```
 
 ## 🔐 Authentification

@@ -420,139 +420,90 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/meals",
+							"raw": "{{base_url}}/meals?page=&limit=&title=&minCalories=&maxCalories=&aliment=&equipment=&maxTime=&targetCalories=&excludedAliments=&availableEquipments=&preferredMacros=&suggestionsLimit=",
 							"host": ["{{base_url}}"],
-							"path": ["meals"]
-						}
-					}
-				},
-				{
-					"name": "Get Meals Paginated",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "x-api-key",
-								"value": "{{api_key}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/meals/paginated?page=1&limit=10&title=&minCalories=200&maxCalories=500&aliment=&equipment=",
-							"host": ["{{base_url}}"],
-							"path": ["meals", "paginated"],
+							"path": ["meals"],
 							"query": [
 								{
 									"key": "page",
-									"value": "1"
+									"value": "",
+									"description": "Page number for pagination",
+									"disabled": true
 								},
 								{
 									"key": "limit",
-									"value": "10"
+									"value": "",
+									"description": "Items per page (max 100)",
+									"disabled": true
 								},
 								{
 									"key": "title",
 									"value": "",
+									"description": "Filter by title (partial match)",
 									"disabled": true
 								},
 								{
 									"key": "minCalories",
-									"value": "200"
+									"value": "",
+									"description": "Minimum calories",
+									"disabled": true
 								},
 								{
 									"key": "maxCalories",
-									"value": "500"
+									"value": "",
+									"description": "Maximum calories",
+									"disabled": true
 								},
 								{
 									"key": "aliment",
 									"value": "",
+									"description": "Filter by aliment name",
 									"disabled": true
 								},
 								{
 									"key": "equipment",
 									"value": "",
+									"description": "Filter by equipment name",
 									"disabled": true
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Get Quick Meals",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "x-api-key",
-								"value": "{{api_key}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/meals/quick?maxTime=30&page=1&limit=10",
-							"host": ["{{base_url}}"],
-							"path": ["meals", "quick"],
-							"query": [
+								},
 								{
 									"key": "maxTime",
-									"value": "30"
+									"value": "",
+									"description": "Quick meals: max preparation time (minutes)",
+									"disabled": true
 								},
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Get Meal Suggestions",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "x-api-key",
-								"value": "{{api_key}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/meals/suggestions?targetCalories=2000&maxTime=30&excludedAliments=&availableEquipments=&preferredMacros=&limit=5",
-							"host": ["{{base_url}}"],
-							"path": ["meals", "suggestions"],
-							"query": [
 								{
 									"key": "targetCalories",
-									"value": "2000"
-								},
-								{
-									"key": "maxTime",
-									"value": "30"
+									"value": "",
+									"description": "Suggestions: target calories",
+									"disabled": true
 								},
 								{
 									"key": "excludedAliments",
 									"value": "",
+									"description": "Suggestions: comma-separated excluded aliments",
 									"disabled": true
 								},
 								{
 									"key": "availableEquipments",
 									"value": "",
+									"description": "Suggestions: comma-separated equipment IDs",
 									"disabled": true
 								},
 								{
 									"key": "preferredMacros",
 									"value": "",
+									"description": "Suggestions: preferred macro (protein/carbohydrates/lipids)",
 									"disabled": true
 								},
 								{
-									"key": "limit",
-									"value": "5"
+									"key": "suggestionsLimit",
+									"value": "",
+									"description": "Suggestions: number of results (default: 5, max: 20)",
+									"disabled": true
 								}
-							]
+							],
+							"description": "Retrieves meals with optional pagination, filtering, and suggestion features. Without parameters: returns all meals. With page/limit: pagination. With maxTime: quick meals. With suggestion params: personalized suggestions."
 						}
 					}
 				},
@@ -632,7 +583,7 @@
 					}
 				},
 				{
-					"name": "Analyze Meal Payload",
+					"name": "Analyze Meal (Payload)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -652,14 +603,22 @@
 							"raw": "{\n  \"aliments\": [\n    {\n      \"name\": \"Poulet\",\n      \"quantity\": 150,\n      \"cal_100g\": 165,\n      \"protein_100g\": 31,\n      \"carbs_100g\": 0,\n      \"fat_100g\": 3.6\n    },\n    {\n      \"name\": \"Riz\",\n      \"quantity\": 200,\n      \"cal_100g\": 130,\n      \"protein_100g\": 2.7,\n      \"carbs_100g\": 28,\n      \"fat_100g\": 0.3\n    }\n  ]\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/meals/analyze",
+							"raw": "{{base_url}}/meals/analyze?fromDb=false",
 							"host": ["{{base_url}}"],
-							"path": ["meals", "analyze"]
+							"path": ["meals", "analyze"],
+							"query": [
+								{
+									"key": "fromDb",
+									"value": "false",
+									"description": "false: payload with nutrition values, true: references from DB"
+								}
+							],
+							"description": "Analyze a meal composition without persisting it. fromDb=false (default): expects nutrition values in payload. fromDb=true: expects aliment references (alimentId/name + quantity)."
 						}
 					}
 				},
 				{
-					"name": "Analyze Meal from DB",
+					"name": "Analyze Meal (From DB)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -679,9 +638,17 @@
 							"raw": "{\n  \"aliments\": [\n    {\n      \"alimentId\": \"2f5b7478-f4ea-4bad-9889-ce261769a1af\",\n      \"quantity\": 150\n    },\n    {\n      \"alimentId\": \"ce07a599-3859-4fce-af1a-314f4801a942\",\n      \"quantity\": 200\n    }\n  ]\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/meals/analyze/from-db",
+							"raw": "{{base_url}}/meals/analyze?fromDb=true",
 							"host": ["{{base_url}}"],
-							"path": ["meals", "analyze", "from-db"]
+							"path": ["meals", "analyze"],
+							"query": [
+								{
+									"key": "fromDb",
+									"value": "true",
+									"description": "true: fetch nutrition from DB using alimentId/name"
+								}
+							],
+							"description": "Analyze a meal using aliments from the database. Set fromDb=true and provide alimentId or name with quantity."
 						}
 					}
 				},

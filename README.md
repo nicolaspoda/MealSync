@@ -231,15 +231,11 @@ Par défaut : `http://localhost:3000`
 
 | Méthode | Route | Description |
 |---------|-------|-------------|
-| GET | `/meals` | Liste de tous les plats |
-| GET | `/meals/paginated` | Liste paginée avec filtres (title, calories, aliment, equipment) |
-| GET | `/meals/quick` | Plats rapides (filtre par temps max) |
-| GET | `/meals/suggestions` | Suggestions personnalisées |
+| GET | `/meals` | Liste de tous les plats avec paramètres optionnels :<br>- Sans paramètres : retourne tous les plats<br>- `page`/`limit` : pagination avec filtres (title, minCalories, maxCalories, aliment, equipment)<br>- `maxTime` : plats rapides (temps de préparation ≤ maxTime)<br>- `targetCalories`, `excludedAliments`, `availableEquipments`, `preferredMacros` : suggestions personnalisées |
 | GET | `/meals/{id}` | Détails d'un plat |
 | GET | `/meals/{id}/nutrition-analysis` | Analyse nutritionnelle d'un plat |
 | POST | `/meals` | Créer un nouveau plat |
-| POST | `/meals/analyze` | Analyser un payload d'aliments (non persisté) |
-| POST | `/meals/analyze/from-db` | Analyser des aliments depuis la DB |
+| POST | `/meals/analyze?fromDb=true\|false` | Analyser un repas sans le persister :<br>- `fromDb=false` (défaut) : payload avec valeurs nutritionnelles<br>- `fromDb=true` : références d'aliments depuis la DB |
 | PUT | `/meals/{id}` | Mettre à jour un plat |
 | DELETE | `/meals/{id}` | Supprimer un plat |
 

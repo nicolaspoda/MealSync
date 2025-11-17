@@ -104,6 +104,14 @@ export interface MealAnalysisDBParams {
   aliments: MealAnalysisAlimentRef[];
 }
 
+/**
+ * Unified type for meal analysis that can handle both payload and DB reference modes.
+ * The service will automatically detect which mode to use based on the presence of nutrition values.
+ */
+export interface MealAnalysisUnifiedParams {
+  aliments: (MealAnalysisAlimentInput | MealAnalysisAlimentRef)[];
+}
+
 export interface MealAnalysisPerAliment {
   alimentId?: string;
   name?: string;

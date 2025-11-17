@@ -13,7 +13,7 @@ import {
   Security,
   Tags,
 } from "tsoa";
-import type { Meal, PaginatedMeals, MealListParams, MealAnalysisParams, MealAnalysisResult, MealAnalysisDBParams, NutritionAnalysis } from "./meal";
+import type { Meal, PaginatedMeals, MealListParams, MealAnalysisParams, MealAnalysisResult, MealAnalysisDBParams, MealAnalysisUnifiedParams, NutritionAnalysis } from "./meal";
 import { MealCreationParams, MealsService } from "./mealsService";
 import ValidateErrorJSON from "../shared/validationErrorJSON";
 
@@ -21,95 +21,83 @@ import ValidateErrorJSON from "../shared/validationErrorJSON";
 @Tags("Meals")
 export class MealsController extends Controller {
   /**
-   * Retrieves a paginated list of meals with optional filters.
-   * Allows searching and filtering meals according to different criteria (title, calories, ingredients, equipments).
-   * @param page Page number (default: 1)
-   * @param limit Number of items per page (default: 10, max: 100)
+   * Retrieves meals with optional pagination, filtering, and suggestion features.
+   * This endpoint consolidates multiple meal listing functionalities:
+   * - Without parameters: returns all meals
+   * - With pagination (page/limit): returns paginated results with optional filters
+   * - With maxTime: returns quick meals (meals that can be prepared within the time limit)
+   * - With suggestion parameters (targetCalories, excludedAliments, etc.): returns personalized suggestions
+   * 
+   * @param page Page number for pagination (default: undefined, returns all if not specified)
+   * @param limit Number of items per page (default: 10, max: 100, only used with pagination)
    * @param title Filter by meal title (partial match)
    * @param minCalories Filter by minimum calories
    * @param maxCalories Filter by maximum calories
    * @param aliment Filter by aliment name (partial match)
    * @param equipment Filter by equipment name (partial match)
+   * @param maxTime Maximum preparation time in minutes (returns quick meals)
+   * @param targetCalories Target calories for suggestions (triggers suggestion mode)
+   * @param excludedAliments Comma-separated list of aliment names to exclude (for suggestions)
+   * @param availableEquipments Comma-separated list of equipment IDs available (for suggestions)
+   * @param preferredMacros Preferred macronutrient for suggestions (protein, carbohydrates, lipids)
+   * @param suggestionsLimit Number of suggestions to return (default: 5, max: 20, only used with suggestions)
    */
-  @Get("paginated")
+  @Get()
   @Security("api_key")
-  public async getMealsPaginated(
+  public async getMeals(
     @Query() page?: number,
     @Query() limit?: number,
     @Query() title?: string,
     @Query() minCalories?: number,
     @Query() maxCalories?: number,
     @Query() aliment?: string,
-    @Query() equipment?: string
-  ): Promise<PaginatedMeals> {
-    const params: MealListParams = {
-      page,
-      limit,
-      title,
-      minCalories,
-      maxCalories,
-      aliment,
-      equipment
-    };
-    return new MealsService().getAllPaginated(params);
-  }
-
-  /**
-   * Retrieves the list of all available meals in the database.
-   * Returns an array containing all meals with their complete information (ingredients, equipments, nutritional values).
-   */
-  @Get()
-  @Security("api_key")
-  public async getMeals(): Promise<Meal[]> {
-    return new MealsService().getAll();
-  }
-
-  /**
-   * Retrieves meals that can be prepared within the specified time limit.
-   * Useful for finding quick meals to prepare based on available time.
-   * @param maxTime Maximum preparation time in minutes
-   * @param page Page number (default: 1)
-   * @param limit Number of items per page (default: 10, max: 100)
-   */
-  @Get("quick")
-  @Security("api_key")
-  public async getQuickMeals(
-    @Query() maxTime: number,
-    @Query() page?: number,
-    @Query() limit?: number
-  ): Promise<PaginatedMeals> {
-    return new MealsService().getQuickMeals(maxTime, { page, limit });
-  }
-
-  /**
-   * Get personalized meal suggestions based on user preferences, nutritional objectives and filters.
-   * Returns meals that match dietary preferences, caloric targets, excluded ingredients, and available equipment.
-   * @param targetCalories Target calories for suggested meals
-   * @param maxTime Maximum preparation time in minutes
-   * @param excludedAliments Comma-separated list of aliment names to exclude
-   * @param availableEquipments Comma-separated list of equipment IDs available
-   * @param preferredMacros Preferred macronutrient (protein, carbohydrates, lipids)
-   * @param limit Number of suggestions to return (default: 5, max: 20)
-   */
-  @Get("suggestions")
-  @Security("api_key")
-  public async getMealSuggestions(
-    @Query() targetCalories?: number,
+    @Query() equipment?: string,
     @Query() maxTime?: number,
+    @Query() targetCalories?: number,
     @Query() excludedAliments?: string,
     @Query() availableEquipments?: string,
     @Query() preferredMacros?: string,
-    @Query() limit?: number
-  ): Promise<Meal[]> {
-    const filters = {
-      targetCalories,
-      maxTime,
-      excludedAliments: excludedAliments ? excludedAliments.split(',') : undefined,
-      availableEquipments: availableEquipments ? availableEquipments.split(',') : undefined,
-      preferredMacros,
-      limit: limit || 5
-    };
-    return new MealsService().getSuggestions(filters);
+    @Query() suggestionsLimit?: number
+  ): Promise<Meal[] | PaginatedMeals> {
+    const service = new MealsService();
+
+    // Suggestion mode: if targetCalories or other suggestion params are provided
+    if (targetCalories !== undefined || excludedAliments !== undefined || 
+        availableEquipments !== undefined || preferredMacros !== undefined) {
+      const filters = {
+        targetCalories,
+        maxTime,
+        excludedAliments: excludedAliments ? excludedAliments.split(',') : undefined,
+        availableEquipments: availableEquipments ? availableEquipments.split(',') : undefined,
+        preferredMacros,
+        limit: suggestionsLimit || 5
+      };
+      return service.getSuggestions(filters);
+    }
+
+    // Quick meals mode: if maxTime is provided (without suggestion params)
+    if (maxTime !== undefined) {
+      return service.getQuickMeals(maxTime, { page, limit });
+    }
+
+    // Pagination mode: if page or limit is provided
+    if (page !== undefined || limit !== undefined) {
+      const params: MealListParams = {
+        page,
+        limit,
+        title,
+        minCalories,
+        maxCalories,
+        aliment,
+        equipment
+      };
+      return service.getAllPaginated(params);
+    }
+
+    // Default: return all meals (if filters are provided, still return all but could be enhanced later)
+    // For now, if filters are provided without pagination, we still return all
+    // This could be enhanced to apply filters even without pagination
+    return service.getAll();
   }
 
   /**
@@ -119,6 +107,7 @@ export class MealsController extends Controller {
    * @example mealId "52907745-7672-470e-a803-a2f8feb52944"
    */
   @Get("{mealId}/nutrition-analysis")
+  @Security("api_key")
   public async getMealNutritionAnalysis(@Path() mealId: string): Promise<NutritionAnalysis> {
     const analysis = await new MealsService().getNutritionAnalysis(mealId);
     if (!analysis) {
@@ -135,6 +124,7 @@ export class MealsController extends Controller {
    * @example mealId "52907745-7672-470e-a803-a2f8feb52944"
    */
   @Get("{mealId}")
+  @Security("api_key")
   public async getMeal(@Path() mealId: string): Promise<Meal> {
     const meal = await new MealsService().get(mealId);
     if (!meal) {
@@ -152,6 +142,7 @@ export class MealsController extends Controller {
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("201", "Created")
   @Post()
+  @Security("api_key")
   public async createMeal(
     @Body() requestBody: MealCreationParams
   ): Promise<Meal> {
@@ -169,6 +160,7 @@ export class MealsController extends Controller {
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("200", "Updated")
   @Put("{mealId}")
+  @Security("api_key")
   public async updateMeal(
     @Path() mealId: string,
     @Body() requestBody: Partial<MealCreationParams>
@@ -189,6 +181,7 @@ export class MealsController extends Controller {
    */
   @SuccessResponse("204", "Deleted")
   @Delete("{mealId}")
+  @Security("api_key")
   public async deleteMeal(@Path() mealId: string): Promise<void> {
     const success = await new MealsService().delete(mealId);
     if (!success) {
@@ -199,35 +192,52 @@ export class MealsController extends Controller {
   }
   
   /**
-   * Analyze a payload of aliments provided by the client (not persisted).
-   * Each aliment should provide a `quantity` in grams. Prefer providing
-   * nutrition values per 100g on the payload; if `alimentId` is present and
-   * nutrition is missing the server will try to look it up in the DB.
-   * @param payload The aliments to analyze with their quantities and nutritional values
+   * Analyze a meal composition without persisting it.
+   * Can analyze either:
+   * - A payload with nutrition values provided directly (fromDb=false or omitted)
+   * - Aliments referenced from the database by ID or name (fromDb=true)
+   * 
+   * @param fromDb If true, expects aliment references (alimentId/name + quantity) and fetches nutrition from DB.
+   *               If false or omitted, expects full nutrition data in the payload or will try to fetch from DB if alimentId is provided.
+   * @param payload The aliments to analyze:
+   *                - If fromDb=true: array of { alimentId?, name?, quantity }
+   *                - If fromDb=false: array of { alimentId?, name?, quantity, cal_100g?, protein_100g?, carbs_100g?, fat_100g? }
    */
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("200", "Analysis computed")
   @Post("analyze")
-  public async analyzeMealPayload(
-    @Body() payload: MealAnalysisParams
+  @Security("api_key")
+  public async analyzeMeal(
+    @Query() fromDb?: boolean,
+    @Body() payload: MealAnalysisUnifiedParams
   ): Promise<MealAnalysisResult> {
-    return await new MealsService().analyzePayload(payload);
-  }
-
-  /**
-   * Simulate a meal using aliments that already exist in the database.
-   * Client sends a list of `{ alimentId, quantity }` and the server fetches
-   * nutrition data from the `aliment` table and computes totals without
-   * creating any meal record.
-   * @param payload List of aliments with their identifiers and quantities
-   */
-  @Response<ValidateErrorJSON>(422, "Validation Failed")
-  @SuccessResponse("200", "Analysis computed")
-  @Post("analyze/from-db")
-  public async analyzeMealFromDb(
-    @Body() payload: MealAnalysisDBParams
-  ): Promise<MealAnalysisResult> {
-    return await new MealsService().analyzeFromDb(payload);
+    const service = new MealsService();
+    
+    if (fromDb === true) {
+      // Convert to DB params format
+      const dbParams: MealAnalysisDBParams = {
+        aliments: payload.aliments.map(a => ({
+          alimentId: (a as any).alimentId,
+          name: (a as any).name,
+          quantity: a.quantity
+        }))
+      };
+      return await service.analyzeFromDb(dbParams);
+    } else {
+      // Convert to payload format
+      const analysisParams: MealAnalysisParams = {
+        aliments: payload.aliments.map(a => ({
+          alimentId: (a as any).alimentId,
+          name: (a as any).name,
+          quantity: a.quantity,
+          cal_100g: (a as any).cal_100g,
+          protein_100g: (a as any).protein_100g,
+          carbs_100g: (a as any).carbs_100g,
+          fat_100g: (a as any).fat_100g
+        }))
+      };
+      return await service.analyzePayload(analysisParams);
+    }
   }
 }
 
