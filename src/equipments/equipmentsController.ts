@@ -19,6 +19,10 @@ import ValidateErrorJSON from "../shared/validationErrorJSON";
 @Route("equipments")
 @Tags("Equipments")
 export class EquipmentsController extends Controller {
+  /**
+   * Retrieves the list of all available equipments in the database.
+   * Returns an array containing all kitchen equipments (oven, microwave, etc.).
+   */
   @Get()
   @Security("api_key")
   public async getEquipments(): Promise<Equipment[]> {
@@ -41,6 +45,11 @@ export class EquipmentsController extends Controller {
     return equipment;
   }
 
+  /**
+   * Creates a new equipment in the database.
+   * Allows adding a new kitchen equipment (oven, microwave, blender, etc.).
+   * @param requestBody The equipment creation parameters including the name
+   */
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("201", "Created")
   @Post()
@@ -51,6 +60,13 @@ export class EquipmentsController extends Controller {
     return await new EquipmentsService().create(requestBody);
   }
 
+  /**
+   * Updates the information of an existing equipment.
+   * Allows modifying the name or other properties of an equipment.
+   * @param equipmentId The unique identifier of the equipment to update
+   * @param requestBody The fields to update (all fields are optional)
+   * @example equipmentId "52907745-7672-470e-a803-a2f8feb52944"
+   */
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("200", "Updated")
   @Put("{equipmentId}")
@@ -66,6 +82,12 @@ export class EquipmentsController extends Controller {
     return equipment;
   }
 
+  /**
+   * Deletes an equipment from the database.
+   * This operation is irreversible. The equipment will be permanently removed from the system.
+   * @param equipmentId The unique identifier of the equipment to delete
+   * @example equipmentId "52907745-7672-470e-a803-a2f8feb52944"
+   */
   @SuccessResponse("204", "Deleted")
   @Delete("{equipmentId}")
   public async deleteEquipment(@Path() equipmentId: string): Promise<void> {

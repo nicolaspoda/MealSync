@@ -19,6 +19,10 @@ import ValidateErrorJSON from "../shared/validationErrorJSON";
 @Route("preparations")
 @Tags("Preparations")
 export class PreparationsController extends Controller {
+  /**
+   * Retrieves the list of all available preparations in the database.
+   * Returns an array containing all preparations (recipe steps) with their information.
+   */
   @Get()
   @Security("api_key")
   public async getPreparations(): Promise<Preparation[]> {
@@ -41,6 +45,11 @@ export class PreparationsController extends Controller {
     return preparation;
   }
 
+  /**
+   * Creates a new preparation (recipe step) in the database.
+   * Allows adding a new preparation step with its description and order.
+   * @param requestBody The preparation creation parameters including description, order and associated meal identifier
+   */
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("201", "Created")
   @Post()
@@ -51,6 +60,13 @@ export class PreparationsController extends Controller {
     return await new PreparationsService().create(requestBody);
   }
 
+  /**
+   * Updates the information of an existing preparation.
+   * Allows modifying the description, order or other properties of a preparation step.
+   * @param preparationId The unique identifier of the preparation to update
+   * @param requestBody The fields to update (all fields are optional)
+   * @example preparationId "52907745-7672-470e-a803-a2f8feb52944"
+   */
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("200", "Updated")
   @Put("{preparationId}")
@@ -66,6 +82,12 @@ export class PreparationsController extends Controller {
     return preparation;
   }
 
+  /**
+   * Deletes a preparation from the database.
+   * This operation is irreversible. The preparation will be permanently removed from the system.
+   * @param preparationId The unique identifier of the preparation to delete
+   * @example preparationId "52907745-7672-470e-a803-a2f8feb52944"
+   */
   @SuccessResponse("204", "Deleted")
   @Delete("{preparationId}")
   public async deletePreparation(@Path() preparationId: string): Promise<void> {
