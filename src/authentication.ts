@@ -11,7 +11,10 @@ export function expressAuthentication(
       token = request.headers["x-api-key"];
     }
 
-    if (token === "abc123456") {
+    // Get API key from environment variable
+    const validApiKey = process.env.API_KEY || "abc123456"; // Fallback for backward compatibility
+
+    if (token === validApiKey) {
       return Promise.resolve({
         id: 1,
         name: "Ironman",
