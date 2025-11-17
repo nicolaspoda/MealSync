@@ -361,6 +361,44 @@ La documentation Swagger inclut :
 
 ---
 
+## 🐳 Docker
+
+### Build et lancement avec Docker
+
+#### Option 1 : Docker Compose (recommandé)
+
+```bash
+# Lancer avec docker-compose
+docker-compose up -d
+
+# Voir les logs
+docker-compose logs -f
+
+# Arrêter
+docker-compose down
+```
+
+#### Option 2 : Docker uniquement
+
+```bash
+# Build l'image
+docker build -t mealsync-api .
+
+# Lancer le conteneur
+docker run -d \
+  -p 3000:3000 \
+  -e API_KEY=your-api-key-here \
+  -v $(pwd)/prisma/dev.db:/app/prisma/dev.db \
+  --name mealsync-api \
+  mealsync-api
+```
+
+### Variables d'environnement Docker
+
+Toutes les variables d'environnement peuvent être configurées dans `docker-compose.yml` ou passées via `-e` avec Docker.
+
+---
+
 ## 🔧 Configuration avancée
 
 ### Base de données
