@@ -1,118 +1,436 @@
 # MealSync API
 
-Plateforme de gestion des repas et de l’alimentation orientée nutrition et sport.
+Plateforme de gestion des repas et de l'alimentation orientée nutrition et sport.
 MealSync permet aux utilisateurs de créer et gérer des plats et recettes, consulter les informations nutritionnelles (calories, macro-nutriments), filtrer par ingrédients et trouver des idées de repas en fonction du temps disponible pour cuisiner.
 
 ---
 
-## Description
+## 📋 Description
 
 MealSync est un service SmartCity permettant aux citoyens de mieux organiser leur alimentation.
 Ce service fournit une API REST pour gérer des plats, leurs ingrédients, leurs valeurs nutritionnelles et leurs recettes associées.
 
-Fonctionnalités visées (vision globale) :
+### Fonctionnalités principales
 
-* Gestion des plats et recettes
-* Informations nutritionnelles détaillées
-* Filtres par ingrédients, calories et macro-nutriments
-* Recherche par temps de préparation
-* Génération de programmes nutritionnels quotidiens
-
----
-
-## Stack Technique
-
-* Langage : Node.js
-* Framework : Express
-* Documentation et génération du contrat API : TSOA (TypeScript)
-* Base de données (prévue Sprint 2) : A définir
+* ✅ Gestion complète des plats et recettes (CRUD)
+* ✅ Informations nutritionnelles détaillées (calories, macronutriments)
+* ✅ Filtres avancés par ingrédients, calories et macro-nutriments
+* ✅ Recherche par temps de préparation
+* ✅ Suggestions de plats personnalisées
+* ✅ Analyse nutritionnelle de repas
+* ✅ Génération de programmes nutritionnels quotidiens
+* ✅ Gestion des aliments, équipements et macronutriments
 
 ---
 
-## Endpoints cibles (prévisionnel)
+## 🛠️ Stack Technique
 
-Base URL : `/api/v1`
-
-| Méthode | Route                  | Description                                                   |
-| ------- | ---------------------- | ------------------------------------------------------------- |
-| GET     | /meals                 | Liste des plats, avec filtres (ingrédients, nutrition, temps) |
-| POST    | /meals                 | Création d’un plat                                            |
-| GET     | /meals/{id}            | Détails d’un plat                                             |
-| PUT     | /meals/{id}            | Modification d’un plat                                        |
-| DELETE  | /meals/{id}            | Suppression d’un plat                                         |
-| GET     | /ingredients           | Liste des ingrédients disponibles                             |
-| GET     | /meals/quick?time=X    | Recherche par temps de préparation                            |
-| GET     | /meals/recommendations | Suggestions adaptées aux objectifs                            |
-
-Pour le Sprint 1, seuls les endpoints suivants seront implémentés sous forme de mock :
-
-* GET /meals
-* GET /meals/{id}
-* POST /meals
+* **Langage** : Node.js 18+
+* **Framework** : Express 5.x
+* **Langage de programmation** : TypeScript
+* **Documentation API** : TSOA (génération automatique OpenAPI/Swagger)
+* **Base de données** : SQLite (via Prisma ORM)
+* **ORM** : Prisma 6.x
+* **Documentation interactive** : Swagger UI
 
 ---
 
-## Installation
+## 🚀 Installation
 
 ### Prérequis
 
-* Node.js 18+
+* Node.js 18 ou supérieur
 * npm ou yarn
+* Git
 
-### Commandes
+### Installation des dépendances
 
-```
-git clone https://github.com/<username>/mealsync-api.git
-cd mealsync-api
+```bash
+# Cloner le repository
+git clone https://github.com/nicolaspoda/MealSync.git
+cd MealSync
+
+# Installer les dépendances
 npm install
 ```
 
-### Lancement en développement
+### Configuration des variables d'environnement
 
+1. Copier le fichier `.env.example` vers `.env` :
+```bash
+cp .env.example .env
 ```
+
+2. Éditer le fichier `.env` et configurer les variables :
+```env
+PORT=3000
+NODE_ENV=development
+DATABASE_URL="file:./prisma/dev.db"
+API_KEY=your-api-key-here
+BASE_URL=http://localhost:3000
+```
+
+### Initialisation de la base de données
+
+```bash
+# Générer le client Prisma
+npm run prisma:generate
+
+# Exécuter les migrations
+npm run prisma:migrate
+
+# (Optionnel) Peupler la base de données avec des données de test
+npm run prisma:seed
+```
+
+---
+
+## 🏃 Lancement
+
+### Mode développement
+
+```bash
 npm run dev
 ```
 
-### Génération du contrat OpenAPI
+Le serveur démarre sur `http://localhost:3000` (ou le port configuré dans `.env`).
+
+### Mode production
+
+```bash
+# Build du projet
+npm run build
+
+# Lancer le serveur
+npm start
+```
+
+### Accès à la documentation Swagger
+
+Une fois le serveur démarré, accédez à la documentation interactive Swagger UI :
+
+**URL** : `http://localhost:3000/docs`
+
+La documentation Swagger permet de :
+* Visualiser tous les endpoints disponibles
+* Tester les endpoints directement depuis le navigateur
+* Voir les modèles de données (schemas)
+* Comprendre les paramètres requis pour chaque endpoint
+
+---
+
+## 🔐 Authentification et API Keys
+
+### Comment obtenir une API Key
+
+L'API Key est configurée dans le fichier `.env` via la variable `API_KEY`.
+
+**Pour le développement** : Utilisez la valeur par défaut ou générez une clé sécurisée.
+
+**Pour la production** : 
+1. Générez une clé sécurisée (ex: `openssl rand -hex 32`)
+2. Configurez-la dans le fichier `.env`
+3. Partagez cette clé avec le frontend de manière sécurisée
+
+### Utilisation de l'API Key
+
+Toutes les requêtes vers l'API doivent inclure l'API Key dans le header `x-api-key` :
+
+```bash
+curl -H "x-api-key: your-api-key-here" http://localhost:3000/aliments
+```
+
+**Exemple avec Postman** :
+1. Créer une nouvelle requête
+2. Aller dans l'onglet "Headers"
+3. Ajouter : `x-api-key` = `your-api-key-here`
+
+**Exemple avec fetch (JavaScript)** :
+```javascript
+fetch('http://localhost:3000/aliments', {
+  headers: {
+    'x-api-key': 'your-api-key-here'
+  }
+})
+```
+
+### Endpoints protégés
+
+La plupart des endpoints nécessitent une API Key valide. En cas d'API Key manquante ou invalide, vous recevrez une erreur `401 Unauthorized`.
+
+---
+
+## 📚 Structure du projet
 
 ```
-npm run tsoa:generate
+MealSync/
+├── src/
+│   ├── aliments/          # Gestion des aliments
+│   │   ├── aliment.ts
+│   │   ├── alimentsController.ts
+│   │   └── alimentsService.ts
+│   ├── equipments/        # Gestion des équipements de cuisine
+│   ├── macros/           # Gestion des macronutriments
+│   ├── meals/            # Gestion des plats (endpoints principaux)
+│   ├── meal-plans/       # Génération de plans de repas
+│   ├── preparations/     # Gestion des étapes de préparation
+│   ├── shared/           # Utilitaires partagés
+│   ├── scripts/          # Scripts utilitaires
+│   ├── app.ts            # Configuration Express
+│   ├── authentication.ts # Gestion de l'authentification API Key
+│   └── server.ts         # Point d'entrée du serveur
+├── prisma/
+│   ├── schema.prisma     # Schéma de base de données
+│   ├── migrations/       # Migrations de base de données
+│   └── seed.ts           # Script de seed
+├── build/                # Fichiers compilés (générés)
+├── .env.example          # Template des variables d'environnement
+├── tsoa.json             # Configuration TSOA
+└── package.json
 ```
 
 ---
 
-## Roadmap
+## 📡 Endpoints de l'API
 
-### Sprint 1 (J1-J2)
+### Base URL
 
-* Contrat OpenAPI minimal
-* Initialisation projet (Express + TSOA)
-* Mock des endpoints principaux
-* Documentation générée automatiquement
-* Tests unitaires de base
+Par défaut : `http://localhost:3000`
 
-### Sprint 2 (J3-J4)
+### Aliments (`/aliments`)
 
-* Connexion base de données
-* CRUD complet des plats
-* Filtres avancés
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/aliments` | Liste de tous les aliments |
+| GET | `/aliments/{id}` | Détails d'un aliment |
+| POST | `/aliments` | Créer un nouvel aliment |
+| PUT | `/aliments/{id}` | Mettre à jour un aliment |
+| DELETE | `/aliments/{id}` | Supprimer un aliment |
 
-### Sprint 3 (J5-J6)
+### Équipements (`/equipments`)
 
-* Informations nutritionnelles détaillées
-* Recommandations et nouvelles recherches
-* Gestion des images de plats (optionnel)
-* Sécurité (intégration du service Auth)
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/equipments` | Liste de tous les équipements |
+| GET | `/equipments/{id}` | Détails d'un équipement |
+| POST | `/equipments` | Créer un nouvel équipement |
+| PUT | `/equipments/{id}` | Mettre à jour un équipement |
+| DELETE | `/equipments/{id}` | Supprimer un équipement |
 
-### Sprint 4 (J7-J8)
+### Macronutriments (`/macros`)
 
-* Observabilité et logs
-* Containerisation et CI/CD
-* Optimisations de performances
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/macros` | Liste de tous les macronutriments |
+| GET | `/macros/{id}` | Détails d'un macronutriment |
+| POST | `/macros` | Créer un nouveau macronutriment |
+| PUT | `/macros/{id}` | Mettre à jour un macronutriment |
+| DELETE | `/macros/{id}` | Supprimer un macronutriment |
+
+### Plats (`/meals`)
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/meals` | Liste de tous les plats |
+| GET | `/meals/paginated` | Liste paginée avec filtres (title, calories, aliment, equipment) |
+| GET | `/meals/quick` | Plats rapides (filtre par temps max) |
+| GET | `/meals/suggestions` | Suggestions personnalisées |
+| GET | `/meals/{id}` | Détails d'un plat |
+| GET | `/meals/{id}/nutrition-analysis` | Analyse nutritionnelle d'un plat |
+| POST | `/meals` | Créer un nouveau plat |
+| POST | `/meals/analyze` | Analyser un payload d'aliments (non persisté) |
+| POST | `/meals/analyze/from-db` | Analyser des aliments depuis la DB |
+| PUT | `/meals/{id}` | Mettre à jour un plat |
+| DELETE | `/meals/{id}` | Supprimer un plat |
+
+### Préparations (`/preparations`)
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/preparations` | Liste de toutes les préparations |
+| GET | `/preparations/{id}` | Détails d'une préparation |
+| POST | `/preparations` | Créer une nouvelle préparation |
+| PUT | `/preparations/{id}` | Mettre à jour une préparation |
+| DELETE | `/preparations/{id}` | Supprimer une préparation |
+
+### Plans de repas (`/meal-plans`)
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| POST | `/meal-plans/generate` | Générer un plan de repas personnalisé |
 
 ---
 
-## Statut
+## 💡 Exemples d'utilisation
 
-Phase de lancement et rédaction du contrat API.
+### Exemple 1 : Récupérer tous les aliments
 
+```bash
+curl -H "x-api-key: your-api-key-here" \
+  http://localhost:3000/aliments
+```
+
+### Exemple 2 : Créer un nouvel aliment
+
+```bash
+curl -X POST \
+  -H "x-api-key: your-api-key-here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Poulet",
+    "cal_100g": 165
+  }' \
+  http://localhost:3000/aliments
+```
+
+### Exemple 3 : Rechercher des plats avec filtres
+
+```bash
+curl -H "x-api-key: your-api-key-here" \
+  "http://localhost:3000/meals/paginated?page=1&limit=10&minCalories=200&maxCalories=500"
+```
+
+### Exemple 4 : Obtenir des suggestions de plats
+
+```bash
+curl -H "x-api-key: your-api-key-here" \
+  "http://localhost:3000/meals/suggestions?targetCalories=2000&maxTime=30&limit=5"
+```
+
+### Exemple 5 : Générer un plan de repas
+
+```bash
+curl -X POST \
+  -H "x-api-key: your-api-key-here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "objectives": {
+      "targetCalories": 2000
+    },
+    "constraints": {
+      "mealsPerDay": 3,
+      "excludedAliments": ["Poisson"],
+      "availableEquipments": ["oven", "stove"]
+    }
+  }' \
+  http://localhost:3000/meal-plans/generate
+```
+
+---
+
+## 🧪 Tests
+
+### Lancer les tests d'intégration
+
+```bash
+# Avec la variable d'environnement BASE_URL configurée
+BASE_URL=http://localhost:3000 npx ts-node src/scripts/testRoutes.ts
+```
+
+---
+
+## 📦 Commandes disponibles
+
+| Commande | Description |
+|----------|-------------|
+| `npm run dev` | Lance le serveur en mode développement avec hot-reload |
+| `npm run build` | Compile le projet TypeScript |
+| `npm start` | Lance le serveur en mode production |
+| `npm run tsoa:routes` | Génère les routes TSOA |
+| `npm run tsoa:spec` | Génère le fichier Swagger JSON |
+| `npm run prisma:generate` | Génère le client Prisma |
+| `npm run prisma:migrate` | Exécute les migrations de base de données |
+| `npm run prisma:studio` | Ouvre Prisma Studio (interface graphique pour la DB) |
+| `npm run prisma:seed` | Peuple la base de données avec des données de test |
+| `npm run prisma:reset` | Réinitialise la base de données |
+
+---
+
+## 📖 Documentation complète
+
+Pour une documentation complète et interactive de l'API, consultez :
+
+**Swagger UI** : `http://localhost:3000/docs`
+
+La documentation Swagger inclut :
+* Tous les endpoints avec leurs descriptions
+* Les modèles de données (schemas)
+* Les paramètres requis et optionnels
+* Les codes de réponse HTTP
+* La possibilité de tester les endpoints directement
+
+---
+
+## 🔧 Configuration avancée
+
+### Base de données
+
+Par défaut, l'API utilise SQLite. Pour changer de base de données, modifiez le `DATABASE_URL` dans `.env` :
+
+```env
+# SQLite (défaut)
+DATABASE_URL="file:./prisma/dev.db"
+
+# PostgreSQL
+DATABASE_URL="postgresql://user:password@localhost:5432/mealsync"
+
+# MySQL
+DATABASE_URL="mysql://user:password@localhost:3306/mealsync"
+```
+
+Puis mettez à jour le `provider` dans `prisma/schema.prisma` et exécutez les migrations.
+
+---
+
+## 🐛 Dépannage
+
+### Le serveur ne démarre pas
+
+1. Vérifiez que le port n'est pas déjà utilisé
+2. Vérifiez que toutes les variables d'environnement sont configurées
+3. Vérifiez que la base de données est initialisée (`npm run prisma:migrate`)
+
+### Erreur 401 Unauthorized
+
+Vérifiez que vous incluez bien l'header `x-api-key` avec une valeur valide.
+
+### Erreur de base de données
+
+Exécutez les migrations : `npm run prisma:migrate`
+
+---
+
+## 📝 License
+
+ISC
+
+---
+
+## 👥 Auteurs
+
+Équipe MealSync
+
+---
+
+## 🔗 Liens utiles
+
+* [Documentation TSOA](https://tsoa-community.github.io/docs/)
+* [Documentation Prisma](https://www.prisma.io/docs)
+* [Documentation Express](https://expressjs.com/)
+* [OpenAPI Specification](https://swagger.io/specification/)
+
+---
+
+## 📊 Statut du projet
+
+✅ API REST fonctionnelle avec 33+ endpoints  
+✅ Base de données Prisma configurée  
+✅ Documentation Swagger automatique  
+✅ Authentification par API Key  
+✅ Gestion complète CRUD pour toutes les ressources  
+✅ Filtres et recherches avancées  
+✅ Génération de plans de repas personnalisés  
+
+---
+
+**Pour toute question ou problème, consultez la documentation Swagger à `/docs` ou ouvrez une issue sur GitHub.**
