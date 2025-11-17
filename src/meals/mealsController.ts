@@ -22,11 +22,12 @@ import ValidateErrorJSON from "../shared/validationErrorJSON";
 export class MealsController extends Controller {
   /**
    * Retrieves a paginated list of meals with optional filters.
+   * Allows searching and filtering meals according to different criteria (title, calories, ingredients, equipments).
    * @param page Page number (default: 1)
    * @param limit Number of items per page (default: 10, max: 100)
    * @param title Filter by meal title (partial match)
    * @param minCalories Filter by minimum calories
-   * @param maxCalories Filter by maximum calories  
+   * @param maxCalories Filter by maximum calories
    * @param aliment Filter by aliment name (partial match)
    * @param equipment Filter by equipment name (partial match)
    */
@@ -53,6 +54,10 @@ export class MealsController extends Controller {
     return new MealsService().getAllPaginated(params);
   }
 
+  /**
+   * Retrieves the list of all available meals in the database.
+   * Returns an array containing all meals with their complete information (ingredients, equipments, nutritional values).
+   */
   @Get()
   @Security("api_key")
   public async getMeals(): Promise<Meal[]> {
@@ -61,6 +66,7 @@ export class MealsController extends Controller {
 
   /**
    * Retrieves meals that can be prepared within the specified time limit.
+   * Useful for finding quick meals to prepare based on available time.
    * @param maxTime Maximum preparation time in minutes
    * @param page Page number (default: 1)
    * @param limit Number of items per page (default: 10, max: 100)
@@ -124,7 +130,7 @@ export class MealsController extends Controller {
 
   /**
    * Retrieves the details of an existing meal.
-   * Supply the unique meal ID and receive corresponding meal details.
+   * Supply the unique meal ID and receive corresponding meal details (ingredients, equipments, recipe, nutritional values).
    * @param mealId The meal's identifier
    * @example mealId "52907745-7672-470e-a803-a2f8feb52944"
    */
@@ -138,6 +144,11 @@ export class MealsController extends Controller {
     return meal;
   }
 
+  /**
+   * Creates a new meal in the database.
+   * Allows adding a new meal with its ingredients, required equipments, recipe and nutritional values.
+   * @param requestBody The meal creation parameters including title, aliments, equipments, recipe and nutritional values
+   */
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("201", "Created")
   @Post()
@@ -148,6 +159,13 @@ export class MealsController extends Controller {
     return await new MealsService().create(requestBody);
   }
 
+  /**
+   * Updates the information of an existing meal.
+   * Allows partial or complete modification of meal properties (title, ingredients, equipments, recipe, nutritional values).
+   * @param mealId The unique identifier of the meal to update
+   * @param requestBody The fields to update (all fields are optional)
+   * @example mealId "52907745-7672-470e-a803-a2f8feb52944"
+   */
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("200", "Updated")
   @Put("{mealId}")
@@ -163,6 +181,12 @@ export class MealsController extends Controller {
     return meal;
   }
 
+  /**
+   * Deletes a meal from the database.
+   * This operation is irreversible. The meal will be permanently removed from the system.
+   * @param mealId The unique identifier of the meal to delete
+   * @example mealId "52907745-7672-470e-a803-a2f8feb52944"
+   */
   @SuccessResponse("204", "Deleted")
   @Delete("{mealId}")
   public async deleteMeal(@Path() mealId: string): Promise<void> {
@@ -179,6 +203,7 @@ export class MealsController extends Controller {
    * Each aliment should provide a `quantity` in grams. Prefer providing
    * nutrition values per 100g on the payload; if `alimentId` is present and
    * nutrition is missing the server will try to look it up in the DB.
+   * @param payload The aliments to analyze with their quantities and nutritional values
    */
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("200", "Analysis computed")
@@ -194,6 +219,7 @@ export class MealsController extends Controller {
    * Client sends a list of `{ alimentId, quantity }` and the server fetches
    * nutrition data from the `aliment` table and computes totals without
    * creating any meal record.
+   * @param payload List of aliments with their identifiers and quantities
    */
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("200", "Analysis computed")

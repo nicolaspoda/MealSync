@@ -19,6 +19,10 @@ import ValidateErrorJSON from "../shared/validationErrorJSON";
 @Route("aliments")
 @Tags("Aliments")
 export class AlimentsController extends Controller {
+  /**
+   * Retrieves the list of all available aliments in the database.
+   * Returns an array containing all aliments with their nutritional information.
+   */
   @Get()
   @Security("api_key")
   public async getAliments(): Promise<Aliment[]> {
@@ -41,6 +45,11 @@ export class AlimentsController extends Controller {
     return aliment;
   }
 
+  /**
+   * Creates a new aliment in the database.
+   * Allows adding a new aliment with its nutritional information (calories, proteins, carbohydrates, lipids).
+   * @param requestBody The aliment creation parameters including name and nutritional values
+   */
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("201", "Created")
   @Post()
@@ -51,6 +60,13 @@ export class AlimentsController extends Controller {
     return await new AlimentsService().create(requestBody);
   }
 
+  /**
+   * Updates the information of an existing aliment.
+   * Allows partial or complete modification of aliment properties (name, nutritional values).
+   * @param alimentId The unique identifier of the aliment to update
+   * @param requestBody The fields to update (all fields are optional)
+   * @example alimentId "52907745-7672-470e-a803-a2f8feb52944"
+   */
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("200", "Updated")
   @Put("{alimentId}")
@@ -66,6 +82,12 @@ export class AlimentsController extends Controller {
     return aliment;
   }
 
+  /**
+   * Deletes an aliment from the database.
+   * This operation is irreversible. The aliment will be permanently removed from the system.
+   * @param alimentId The unique identifier of the aliment to delete
+   * @example alimentId "52907745-7672-470e-a803-a2f8feb52944"
+   */
   @SuccessResponse("204", "Deleted")
   @Delete("{alimentId}")
   public async deleteAliment(@Path() alimentId: string): Promise<void> {
