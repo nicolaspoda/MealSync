@@ -6,11 +6,27 @@ import express, {
   NextFunction,
 } from "express";
 import cors from "cors";
+import rateLimit from "express-rate-limit";
 import { RegisterRoutes } from "../build/routes";
 import swaggerUi from "swagger-ui-express";
 import { ValidateError } from "tsoa"; 
 
 export const app = express();
+
+// Configure Rate Limiting
+// Limit each IP to 100 requests per 15 minutes
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: parseInt(process.env.RATE_LIMIT_MAX || "100"), // Limit each IP to 100 requests per windowMs
+  message: {
+    error: "Too many requests from this IP, please try again later.",
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+// Apply rate limiting to all requests
+app.use(limiter);
 
 // Configure CORS
 // Allow requests from frontend (adjust origin in production)
