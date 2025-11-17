@@ -5,11 +5,23 @@ import express, {
   Response as ExResponse,
   NextFunction,
 } from "express";
+import cors from "cors";
 import { RegisterRoutes } from "../build/routes";
 import swaggerUi from "swagger-ui-express";
 import { ValidateError } from "tsoa"; 
 
 export const app = express();
+
+// Configure CORS
+// Allow requests from frontend (adjust origin in production)
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || "*", // In production, specify exact frontend URL
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "x-api-key", "Authorization"],
+  credentials: true, // Allow cookies if needed
+};
+
+app.use(cors(corsOptions));
 
 // Use body parser to read sent json payloads
 app.use(
