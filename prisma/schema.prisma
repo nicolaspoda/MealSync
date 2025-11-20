@@ -114,3 +114,267 @@ model AlimentMacro {
   @@id([alimentId, macroId])
   @@map("aliment_macros")
 }
+
+// ============================================
+// USER PROFILE SYSTEM
+// ============================================
+
+model User {
+  id        String       @id @default(uuid())
+  email     String       @unique
+  username  String?      @unique
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  
+  profile   UserProfile?
+  
+  @@map("users")
+}
+
+model UserProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Données physiques de base
+  gender              String?  // MALE, FEMALE, OTHER, PREFER_NOT_TO_SAY
+  birthDate           DateTime?
+  height              Float?   // cm
+  weight              Float?   // kg
+  targetWeight        Float?   // kg
+  
+  // Composition corporelle
+  bodyFatPercentage   Float?   // %
+  leanMass           Float?   // kg
+  fatMass             Float?   // kg
+  waistCircumference Float?   // cm
+  hipCircumference    Float?   // cm
+  neckCircumference  Float?   // cm
+  
+  // Métabolisme (calculés automatiquement)
+  bmr                 Float?   // kcal/jour
+  tdee                Float?   // kcal/jour
+  bmi                 Float?
+  measuredBMR         Float?   // si test métabolique
+  metabolicFactor     Float?   // facteur personnalisé
+  
+  // Santé générale
+  healthStatus        String?  // EXCELLENT, GOOD, FAIR, POOR
+  isPregnant          Boolean  @default(false)
+  pregnancyTrimester  Int?     // 1, 2, 3
+  isLactating         Boolean  @default(false)
+  lactationMonths     Int?
+  
+  // Activité et mode de vie
+  activityLevel       String?  // SEDENTARY, LIGHTLY_ACTIVE, MODERATELY_ACTIVE, VERY_ACTIVE, EXTRA_ACTIVE
+  exerciseType       String?  // CARDIO, STRENGTH, FLEXIBILITY, SPORTS, MIXED, NONE
+  exerciseFrequency   Int?     // jours/semaine (0-7)
+  exerciseMinutes    Int?     // minutes par session
+  exerciseIntensity   String?  // LOW, MODERATE, HIGH, VERY_HIGH
+  trainingGoal        String?  // ENDURANCE, STRENGTH_GAIN, MUSCLE_GAIN, FAT_LOSS, FLEXIBILITY, GENERAL_FITNESS
+  workType            String?  // SEDENTARY, LIGHT, MODERATE, ACTIVE, VERY_ACTIVE
+  workHoursPerDay     Int?
+  sleepHours          Int?
+  sleepQuality        String?  // EXCELLENT, GOOD, FAIR, POOR
+  stressLevel         String?  // LOW, MODERATE, HIGH, VERY_HIGH
+  isSmoker            Boolean  @default(false)
+  cigarettesPerDay    Int?
+  alcoholConsumption   String?  // NONE, OCCASIONAL, MODERATE, HEAVY
+  alcoholDrinksPerWeek Int?
+  
+  // Objectifs
+  goal                String?  // LOSE_WEIGHT, MAINTAIN_WEIGHT, GAIN_WEIGHT, BUILD_MUSCLE, RECOMPOSITION, IMPROVE_HEALTH, PERFORMANCE, PREGNANCY, LACTATION
+  targetCalories      Int?     // kcal/jour (calculé ou manuel)
+  calorieDeficit      Int?     // kcal/jour
+  calorieSurplus      Int?     // kcal/jour
+  weightChangeRate    String?  // CONSERVATIVE, MODERATE, AGGRESSIVE
+  targetBodyFat       Float?   // %
+  targetLeanMass      Float?   // kg
+  targetWaist         Float?   // cm
+  performanceGoals    String?  // texte libre
+  
+  // Répartition des repas
+  mealsPerDay         Int      @default(3) // 1-8
+  snacksPerDay        Int      @default(0) // 0-5
+  intermittentFasting String? // NONE, 16_8, 18_6, 20_4, OMAD, 5_2, ALTERNATE_DAY
+  fastingWindowStart  String?  // heure (ex: "12:00")
+  fastingWindowEnd    String?  // heure (ex: "20:00")
+  
+  // Contraintes pratiques
+  availableEquipments String   @default("[]") // JSON array d'IDs
+  kitchenSize         String?  // SMALL, MEDIUM, LARGE
+  cookingSkill        String?  // BEGINNER, INTERMEDIATE, ADVANCED, PROFESSIONAL
+  masteredTechniques  String   @default("[]") // JSON array
+  hasMobilityIssues   Boolean  @default(false)
+  physicalLimitations String?  // texte
+  needsCookingHelp    Boolean  @default(false)
+  
+  // Contraintes temporelles
+  maxPrepTimePerMeal  Int?     // minutes
+  maxPrepTimePerDay   Int?     // minutes
+  breakfastPrepTime   Int?     // minutes
+  lunchPrepTime       Int?     // minutes
+  dinnerPrepTime      Int?     // minutes
+  snackPrepTime       Int?     // minutes
+  availableDays       String   @default("[]") // JSON array: LUN, MAR, MER, JEU, VEN, SAM, DIM
+  availableHours      String?  // JSON: {start: "08:00", end: "22:00"}
+  mealPrepPreference  Boolean  @default(false)
+  mealPrepDays        String   @default("[]") // JSON array
+  
+  // Contraintes budgétaires
+  budgetPerMeal       Float?
+  budgetPerDay        Float?
+  budgetPerWeek       Float?
+  budgetPerMonth      Float?
+  currency            String   @default("EUR")
+  pricePreference     String?  // BUDGET, MODERATE, PREMIUM, LUXURY
+  optimizeForCost     Boolean  @default(false)
+  acceptCheaperAlternatives Boolean @default(true)
+  
+  // Préférences de préparation
+  preferredCookingMethods String @default("[]") // JSON array
+  avoidedCookingMethods   String @default("[]") // JSON array
+  complexityPreference    String? // SIMPLE, MODERATE, COMPLEX
+  maxSteps                Int?
+  batchCooking            Boolean @default(false)
+  batchPortions           Int?
+  storageDays             Int?
+  acceptsFreezing         Boolean @default(true)
+  
+  // Préférences nutritionnelles
+  macroRatio          String?  // HIGH_PROTEIN, BALANCED, LOW_CARB, MODERATE_CARB, HIGH_CARB, LOW_FAT, MODERATE_FAT, HIGH_FAT, KETO_RATIO
+  proteinTarget       Float?   // g/jour ou %
+  carbTarget          Float?   // g/jour ou %
+  fatTarget           Float?   // g/jour ou %
+  fiberTarget         Float?   // g/jour
+  micronutrientFocus  String   @default("[]") // JSON array
+  prefersWholeFoods   Boolean  @default(false)
+  prefersOrganic       Boolean  @default(false)
+  prefersMinimallyProcessed Boolean @default(false)
+  takesSupplements     Boolean  @default(false)
+  supplementsList      String?  // texte
+  
+  // Allergies et intolérances
+  allergies           String   @default("[]") // JSON array
+  allergySeverity    String?  // MILD, MODERATE, SEVERE, LIFE_THREATENING
+  intolerances       String   @default("[]") // JSON array
+  celiac             Boolean  @default(false)
+  
+  // Contraintes médicales
+  medicalConditions   String   @default("[]") // JSON array
+  medications         String?  // texte
+  medicationInteractions String? // texte
+  sodiumLimit         Int?     // mg/jour
+  potassiumLimit      Int?     // mg/jour
+  phosphorusLimit     Int?     // mg/jour
+  proteinLimit        Int?     // g/jour
+  fluidLimit          Int?     // ml/jour
+  fiberLimit          Int?     // g/jour
+  recentSurgeries     String?  // texte
+  postSurgeryRestrictions String? // texte
+  hasGastricBypass    Boolean  @default(false)
+  bypassType          String?
+  otherProcedures     String?  // texte
+  
+  // Préférences de goût
+  sweetPreference     String?  // LIKE, NEUTRAL, DISLIKE
+  sourPreference      String?  // LIKE, NEUTRAL, DISLIKE
+  saltyPreference     String?  // LIKE, NEUTRAL, DISLIKE
+  bitterPreference    String?  // LIKE, NEUTRAL, DISLIKE
+  umamiPreference     String?  // LIKE, NEUTRAL, DISLIKE
+  spicyPreference     String?  // LIKE, NEUTRAL, DISLIKE
+  spiceLevel          String?  // NONE, MILD, MODERATE, HOT, VERY_HOT, EXTREME
+  crispyPreference    String?  // LIKE, NEUTRAL, DISLIKE
+  creamyPreference    String?  // LIKE, NEUTRAL, DISLIKE
+  chewyPreference     String?  // LIKE, NEUTRAL, DISLIKE
+  softPreference      String?  // LIKE, NEUTRAL, DISLIKE
+  crunchyPreference   String?  // LIKE, NEUTRAL, DISLIKE
+  smoothPreference    String?  // LIKE, NEUTRAL, DISLIKE
+  temperaturePreference String? // HOT, WARM, ROOM_TEMPERATURE, COLD, FROZEN
+  likedFoods          String   @default("[]") // JSON array
+  dislikedFoods       String  @default("[]") // JSON array
+  neutralFoods        String  @default("[]") // JSON array
+  
+  // Historique et suivi
+  mealHistory         String   @default("[]") // JSON array
+  likedMeals          String   @default("[]") // JSON array d'IDs
+  dislikedMeals       String  @default("[]") // JSON array d'IDs
+  mealRatings         String  @default("{}") // JSON object: {mealId: rating}
+  mealNotes           String  @default("{}") // JSON object: {mealId: note}
+  varietyPreference   String?  // HIGH, MODERATE, LOW
+  evaluationFrequency String?  // WEEKLY, MONTHLY, QUARTERLY
+  
+  // Métadonnées
+  lastCalculated      DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  // Relations
+  mealDistribution    MealDistribution?
+  weightHistory       WeightHistory[]
+  mealConsumptions    MealConsumption[]
+  
+  @@map("user_profiles")
+}
+
+model MealDistribution {
+  id        String       @id @default(uuid())
+  profileId String      @unique
+  profile   UserProfile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  
+  // Répartition calorique (%)
+  breakfastPercent Float @default(25)  // 20-30%
+  lunchPercent     Float @default(35)  // 30-40%
+  dinnerPercent    Float @default(30)  // 25-35%
+  snackPercent     Float @default(10) // 5-15%
+  
+  // Répartition macros par repas (JSON)
+  breakfastMacros  String? // JSON: {protein: 30, carbs: 50, fat: 20} en %
+  lunchMacros      String?
+  dinnerMacros     String?
+  snackMacros      String?
+  
+  // Timing des repas
+  breakfastTime    String? // heure (ex: "07:00")
+  lunchTime        String? // heure (ex: "12:30")
+  dinnerTime       String? // heure (ex: "19:00")
+  snackTimes       String  @default("[]") // JSON array d'heures
+  lastMealBeforeBed Int?   // heures avant coucher
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  @@map("meal_distributions")
+}
+
+model WeightHistory {
+  id        String       @id @default(uuid())
+  profileId String
+  profile   UserProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  
+  weight    Float        // kg
+  date      DateTime     @default(now())
+  notes     String?
+  
+  createdAt DateTime     @default(now())
+  
+  @@index([profileId, date])
+  @@map("weight_history")
+}
+
+model MealConsumption {
+  id        String       @id @default(uuid())
+  profileId String
+  profile   UserProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  mealId    String       // référence au meal (pas de relation pour flexibilité)
+  
+  consumedAt DateTime    @default(now())
+  mealType   String?     // BREAKFAST, LUNCH, DINNER, SNACK
+  rating     Int?         // 1-5
+  notes      String?
+  
+  createdAt  DateTime    @default(now())
+  
+  @@index([profileId, consumedAt])
+  @@map("meal_consumptions")
+}

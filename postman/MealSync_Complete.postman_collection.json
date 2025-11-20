@@ -1,0 +1,2027 @@
+{
+	"info": {
+		"_postman_id": "mealsync-complete-collection",
+		"name": "MealSync API - Complete Collection",
+		"description": "Complete API collection for MealSync including all endpoints: Aliments, Equipments, Macros, Meals, Preparations, Meal Plans, Users, Profiles, and Personalized Suggestions. All requests tested and validated.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "api_key",
+			"value": "abc123456",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Aliments",
+			"item": [
+				{
+					"name": "Get All Aliments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/aliments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"aliments"
+							]
+						},
+						"description": "Retrieves the list of all available aliments in the database."
+					}
+				},
+				{
+					"name": "Get Aliment by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/aliments/:alimentId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"aliments",
+								":alimentId"
+							],
+							"variable": [
+								{
+									"key": "alimentId",
+									"value": "52907745-7672-470e-a803-a2f8feb52944",
+									"description": "The aliment's identifier"
+								}
+							]
+						},
+						"description": "Retrieves the details of an existing aliment."
+					}
+				},
+				{
+					"name": "Create Aliment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Poulet\",\n  \"cal_100g\": 165\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/aliments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"aliments"
+							]
+						},
+						"description": "Creates a new aliment in the database."
+					}
+				},
+				{
+					"name": "Update Aliment",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Poulet grillé\",\n  \"cal_100g\": 170\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/aliments/:alimentId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"aliments",
+								":alimentId"
+							],
+							"variable": [
+								{
+									"key": "alimentId",
+									"value": "52907745-7672-470e-a803-a2f8feb52944"
+								}
+							]
+						},
+						"description": "Updates the information of an existing aliment."
+					}
+				},
+				{
+					"name": "Delete Aliment",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/aliments/:alimentId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"aliments",
+								":alimentId"
+							],
+							"variable": [
+								{
+									"key": "alimentId",
+									"value": "52907745-7672-470e-a803-a2f8feb52944"
+								}
+							]
+						},
+						"description": "Deletes an aliment from the database."
+					}
+				}
+			]
+		},
+		{
+			"name": "Equipments",
+			"item": [
+				{
+					"name": "Get All Equipments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/equipments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"equipments"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Equipment by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/equipments/:equipmentId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"equipments",
+								":equipmentId"
+							],
+							"variable": [
+								{
+									"key": "equipmentId",
+									"value": "52907745-7672-470e-a803-a2f8feb52944"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Equipment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Four\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/equipments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"equipments"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Equipment",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Four électrique\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/equipments/:equipmentId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"equipments",
+								":equipmentId"
+							],
+							"variable": [
+								{
+									"key": "equipmentId",
+									"value": "52907745-7672-470e-a803-a2f8feb52944"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Equipment",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/equipments/:equipmentId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"equipments",
+								":equipmentId"
+							],
+							"variable": [
+								{
+									"key": "equipmentId",
+									"value": "52907745-7672-470e-a803-a2f8feb52944"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Macros",
+			"item": [
+				{
+					"name": "Get All Macros",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/macros",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"macros"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Macro by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/macros/:macroId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"macros",
+								":macroId"
+							],
+							"variable": [
+								{
+									"key": "macroId",
+									"value": "52907745-7672-470e-a803-a2f8feb52944"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Macro",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Protéines\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/macros",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"macros"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Macro",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Protéines animales\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/macros/:macroId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"macros",
+								":macroId"
+							],
+							"variable": [
+								{
+									"key": "macroId",
+									"value": "52907745-7672-470e-a803-a2f8feb52944"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Macro",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/macros/:macroId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"macros",
+								":macroId"
+							],
+							"variable": [
+								{
+									"key": "macroId",
+									"value": "52907745-7672-470e-a803-a2f8feb52944"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Meals",
+			"item": [
+				{
+					"name": "Get All Meals",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/meals?page=&limit=&title=&minCalories=&maxCalories=&aliment=&equipment=&maxTime=&targetCalories=&excludedAliments=&availableEquipments=&preferredMacros=&suggestionsLimit=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meals"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "",
+									"description": "Page number for pagination",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "",
+									"description": "Items per page (max 100)",
+									"disabled": true
+								},
+								{
+									"key": "title",
+									"value": "",
+									"description": "Filter by title (partial match)",
+									"disabled": true
+								},
+								{
+									"key": "minCalories",
+									"value": "",
+									"description": "Minimum calories",
+									"disabled": true
+								},
+								{
+									"key": "maxCalories",
+									"value": "",
+									"description": "Maximum calories",
+									"disabled": true
+								},
+								{
+									"key": "aliment",
+									"value": "",
+									"description": "Filter by aliment name",
+									"disabled": true
+								},
+								{
+									"key": "equipment",
+									"value": "",
+									"description": "Filter by equipment name",
+									"disabled": true
+								},
+								{
+									"key": "maxTime",
+									"value": "",
+									"description": "Quick meals: max preparation time (minutes)",
+									"disabled": true
+								},
+								{
+									"key": "targetCalories",
+									"value": "",
+									"description": "Suggestions: target calories",
+									"disabled": true
+								},
+								{
+									"key": "excludedAliments",
+									"value": "",
+									"description": "Suggestions: comma-separated excluded aliments",
+									"disabled": true
+								},
+								{
+									"key": "availableEquipments",
+									"value": "",
+									"description": "Suggestions: comma-separated equipment IDs",
+									"disabled": true
+								},
+								{
+									"key": "preferredMacros",
+									"value": "",
+									"description": "Suggestions: preferred macro (protein/carbohydrates/lipids)",
+									"disabled": true
+								},
+								{
+									"key": "suggestionsLimit",
+									"value": "",
+									"description": "Suggestions: number of results (default: 5, max: 20)",
+									"disabled": true
+								}
+							],
+							"description": "Retrieves meals with optional pagination, filtering, and suggestion features. Without parameters: returns all meals. With page/limit: pagination. With maxTime: quick meals. With suggestion params: personalized suggestions."
+						}
+					}
+				},
+				{
+					"name": "Get Meal by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/meals/:mealId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meals",
+								":mealId"
+							],
+							"variable": [
+								{
+									"key": "mealId",
+									"value": "52907745-7672-470e-a803-a2f8feb52944"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Meal Nutrition Analysis",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/meals/:mealId/nutrition-analysis",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meals",
+								":mealId",
+								"nutrition-analysis"
+							],
+							"variable": [
+								{
+									"key": "mealId",
+									"value": "52907745-7672-470e-a803-a2f8feb52944"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Meal",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Poulet au riz et brocolis\",\n  \"description\": \"Un repas équilibré riche en protéines\",\n  \"calories\": 450,\n  \"aliments\": [\n    {\n      \"alimentId\": \"2f5b7478-f4ea-4bad-9889-ce261769a1af\",\n      \"quantity\": 150\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/meals",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meals"
+							]
+						}
+					}
+				},
+				{
+					"name": "Analyze Meal (Payload)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"aliments\": [\n    {\n      \"name\": \"Poulet\",\n      \"quantity\": 150,\n      \"cal_100g\": 165,\n      \"protein_100g\": 31,\n      \"carbs_100g\": 0,\n      \"fat_100g\": 3.6\n    },\n    {\n      \"name\": \"Riz\",\n      \"quantity\": 200,\n      \"cal_100g\": 130,\n      \"protein_100g\": 2.7,\n      \"carbs_100g\": 28,\n      \"fat_100g\": 0.3\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/meals/analyze?fromDb=false",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meals",
+								"analyze"
+							],
+							"query": [
+								{
+									"key": "fromDb",
+									"value": "false",
+									"description": "false: payload with nutrition values, true: references from DB"
+								}
+							],
+							"description": "Analyze a meal composition without persisting it. fromDb=false (default): expects nutrition values in payload. fromDb=true: expects aliment references (alimentId/name + quantity)."
+						}
+					}
+				},
+				{
+					"name": "Analyze Meal (From DB)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"aliments\": [\n    {\n      \"alimentId\": \"2f5b7478-f4ea-4bad-9889-ce261769a1af\",\n      \"quantity\": 150\n    },\n    {\n      \"alimentId\": \"ce07a599-3859-4fce-af1a-314f4801a942\",\n      \"quantity\": 200\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/meals/analyze?fromDb=true",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meals",
+								"analyze"
+							],
+							"query": [
+								{
+									"key": "fromDb",
+									"value": "true",
+									"description": "true: fetch nutrition from DB using alimentId/name"
+								}
+							],
+							"description": "Analyze a meal using aliments from the database. Set fromDb=true and provide alimentId or name with quantity."
+						}
+					}
+				},
+				{
+					"name": "Update Meal",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Poulet au riz et brocolis (modifié)\",\n  \"calories\": 480\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/meals/:mealId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meals",
+								":mealId"
+							],
+							"variable": [
+								{
+									"key": "mealId",
+									"value": "52907745-7672-470e-a803-a2f8feb52944"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Meal",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/meals/:mealId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meals",
+								":mealId"
+							],
+							"variable": [
+								{
+									"key": "mealId",
+									"value": "52907745-7672-470e-a803-a2f8feb52944"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Preparations",
+			"item": [
+				{
+					"name": "Get All Preparations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/preparations",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"preparations"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Preparation by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/preparations/:preparationId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"preparations",
+								":preparationId"
+							],
+							"variable": [
+								{
+									"key": "preparationId",
+									"value": "52907745-7672-470e-a803-a2f8feb52944"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Preparation",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"step\": 1,\n  \"description\": \"Couper le poulet en morceaux\",\n  \"estimated_time\": 5\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/preparations",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"preparations"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Preparation",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"description\": \"Couper le poulet en petits morceaux\",\n  \"estimated_time\": 7\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/preparations/:preparationId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"preparations",
+								":preparationId"
+							],
+							"variable": [
+								{
+									"key": "preparationId",
+									"value": "52907745-7672-470e-a803-a2f8feb52944"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Preparation",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/preparations/:preparationId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"preparations",
+								":preparationId"
+							],
+							"variable": [
+								{
+									"key": "preparationId",
+									"value": "52907745-7672-470e-a803-a2f8feb52944"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Meal Plans",
+			"item": [
+				{
+					"name": "Generate Meal Plan",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"objectives\": {\n    \"targetCalories\": 2000,\n    \"macros\": {\n      \"protein\": 150,\n      \"carbohydrates\": 200,\n      \"lipids\": 65\n    }\n  },\n  \"constraints\": {\n    \"mealsPerDay\": 3,\n    \"excludedAliments\": [\"Poisson\"],\n    \"availableEquipments\": [\"oven\", \"stove\"]\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/meal-plans/generate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meal-plans",
+								"generate"
+							]
+						},
+						"description": "Generate a personalized meal plan based on nutritional objectives and dietary constraints."
+					}
+				}
+			]
+		},
+		{
+			"name": "1. Setup - Create Users",
+			"item": [
+				{
+					"name": "Create User 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('user1_id', response.id);",
+									"    console.log('User1 ID saved:', response.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user1@test.com\",\n  \"username\": \"user1\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create User 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('user2_id', response.id);",
+									"    console.log('User2 ID saved:', response.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user2@test.com\",\n  \"username\": \"user2\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create User 3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('user3_id', response.id);",
+									"    console.log('User3 ID saved:', response.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user3@test.com\",\n  \"username\": \"user3\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create User 4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('user4_id', response.id);",
+									"    console.log('User4 ID saved:', response.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user4@test.com\",\n  \"username\": \"user4\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. User CRUD Operations",
+			"item": [
+				{
+					"name": "Get User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/{{user1_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user1_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"updated_user1\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{user1_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user1_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/{{user1_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user1_id}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Profile Scenarios - Tested & Validated",
+			"item": [
+				{
+					"name": "Scenario 1: Athlete - Muscle Gain",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"gender\": \"MALE\",\n  \"birthDate\": \"1990-01-15T00:00:00.000Z\",\n  \"height\": 180,\n  \"weight\": 75,\n  \"targetWeight\": 80,\n  \"bodyFatPercentage\": 15,\n  \"activityLevel\": \"MODERATELY_ACTIVE\",\n  \"exerciseType\": \"STRENGTH\",\n  \"exerciseFrequency\": 4,\n  \"exerciseMinutes\": 60,\n  \"exerciseIntensity\": \"HIGH\",\n  \"trainingGoal\": \"MUSCLE_GAIN\",\n  \"goal\": \"BUILD_MUSCLE\",\n  \"weightChangeRate\": \"MODERATE\",\n  \"mealsPerDay\": 4,\n  \"snacksPerDay\": 1,\n  \"macroRatio\": \"HIGH_PROTEIN\",\n  \"proteinTarget\": 150,\n  \"carbTarget\": 200,\n  \"fatTarget\": 70,\n  \"maxPrepTimePerMeal\": 45,\n  \"cookingSkill\": \"INTERMEDIATE\",\n  \"complexityPreference\": \"MODERATE\",\n  \"preferredCookingMethods\": [\"BAKING\", \"GRILLING\"],\n  \"mealDistribution\": {\n    \"breakfastPercent\": 25,\n    \"lunchPercent\": 35,\n    \"dinnerPercent\": 30,\n    \"snackPercent\": 10\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{user1_id}}/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user1_id}}",
+								"profile"
+							]
+						}
+					}
+				},
+				{
+					"name": "Scenario 2: Weight Loss (Conservative)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"gender\": \"FEMALE\",\n  \"birthDate\": \"1990-07-20T00:00:00.000Z\",\n  \"height\": 165,\n  \"weight\": 70,\n  \"targetWeight\": 65,\n  \"activityLevel\": \"MODERATELY_ACTIVE\",\n  \"exerciseType\": \"CARDIO\",\n  \"exerciseFrequency\": 4,\n  \"exerciseMinutes\": 45,\n  \"exerciseIntensity\": \"MODERATE\",\n  \"trainingGoal\": \"FAT_LOSS\",\n  \"goal\": \"LOSE_WEIGHT\",\n  \"weightChangeRate\": \"CONSERVATIVE\",\n  \"mealsPerDay\": 3,\n  \"snacksPerDay\": 1,\n  \"macroRatio\": \"BALANCED\",\n  \"fiberTarget\": 30,\n  \"maxPrepTimePerMeal\": 30,\n  \"complexityPreference\": \"SIMPLE\",\n  \"preferredCookingMethods\": [\"STEAMING\", \"BAKING\"],\n  \"mealDistribution\": {\n    \"breakfastPercent\": 25,\n    \"lunchPercent\": 40,\n    \"dinnerPercent\": 30,\n    \"snackPercent\": 5\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{user2_id}}/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user2_id}}",
+								"profile"
+							]
+						}
+					}
+				},
+				{
+					"name": "Scenario 3: Vegetarian",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"gender\": \"FEMALE\",\n  \"birthDate\": \"1988-11-10T00:00:00.000Z\",\n  \"height\": 170,\n  \"weight\": 65,\n  \"activityLevel\": \"LIGHTLY_ACTIVE\",\n  \"exerciseType\": \"FLEXIBILITY\",\n  \"exerciseFrequency\": 3,\n  \"goal\": \"MAINTAIN_WEIGHT\",\n  \"mealsPerDay\": 4,\n  \"macroRatio\": \"BALANCED\",\n  \"excludedAliments\": [\"Poulet\", \"Bœuf\", \"Porc\", \"Poisson\"],\n  \"preferredCuisines\": [\"MEDITERRANEAN\", \"INDIAN\"],\n  \"prefersOrganic\": true,\n  \"prefersWholeFoods\": true,\n  \"micronutrientFocus\": [\"IRON\", \"VITAMIN_B12\", \"CALCIUM\"],\n  \"takesSupplements\": true,\n  \"supplementsList\": \"B12, Iron\",\n  \"maxPrepTimePerMeal\": 45,\n  \"complexityPreference\": \"MODERATE\",\n  \"mealDistribution\": {\n    \"breakfastPercent\": 25,\n    \"lunchPercent\": 35,\n    \"dinnerPercent\": 30,\n    \"snackPercent\": 10\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{user3_id}}/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user3_id}}",
+								"profile"
+							]
+						}
+					}
+				},
+				{
+					"name": "Scenario 4: Keto Diet",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"gender\": \"MALE\",\n  \"birthDate\": \"1992-05-25T00:00:00.000Z\",\n  \"height\": 175,\n  \"weight\": 85,\n  \"targetWeight\": 78,\n  \"activityLevel\": \"MODERATELY_ACTIVE\",\n  \"exerciseType\": \"MIXED\",\n  \"exerciseFrequency\": 5,\n  \"goal\": \"LOSE_WEIGHT\",\n  \"weightChangeRate\": \"MODERATE\",\n  \"mealsPerDay\": 3,\n  \"intermittentFasting\": \"16_8\",\n  \"fastingWindowStart\": \"20:00\",\n  \"fastingWindowEnd\": \"12:00\",\n  \"macroRatio\": \"KETO_RATIO\",\n  \"proteinTarget\": 120,\n  \"carbTarget\": 20,\n  \"fatTarget\": 150,\n  \"excludedAliments\": [\"Riz\", \"Pâtes\", \"Pain\", \"Pomme de terre\"],\n  \"maxPrepTimePerMeal\": 40,\n  \"preferredCookingMethods\": [\"GRILLING\", \"ROASTING\"],\n  \"mealDistribution\": {\n    \"breakfastPercent\": 0,\n    \"lunchPercent\": 50,\n    \"dinnerPercent\": 50,\n    \"snackPercent\": 0\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{user4_id}}/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user4_id}}",
+								"profile"
+							]
+						}
+					}
+				},
+				{
+					"name": "Scenario 5: Allergies & Intolerances",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"gender\": \"FEMALE\",\n  \"birthDate\": \"1995-09-12T00:00:00.000Z\",\n  \"height\": 160,\n  \"weight\": 60,\n  \"activityLevel\": \"LIGHTLY_ACTIVE\",\n  \"goal\": \"MAINTAIN_WEIGHT\",\n  \"mealsPerDay\": 3,\n  \"excludedAliments\": [\"Arachides\", \"Noix\", \"Lait\", \"Œufs\"],\n  \"allergies\": [\"PEANUTS\", \"TREE_NUTS\", \"MILK\", \"EGGS\"],\n  \"allergySeverity\": \"SEVERE\",\n  \"intolerances\": [\"LACTOSE\"],\n  \"sodiumLimit\": 2000,\n  \"maxPrepTimePerMeal\": 25,\n  \"cookingSkill\": \"BEGINNER\",\n  \"complexityPreference\": \"SIMPLE\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{user1_id}}/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user1_id}}",
+								"profile"
+							]
+						}
+					}
+				},
+				{
+					"name": "Scenario 6: Medical Conditions",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"gender\": \"MALE\",\n  \"birthDate\": \"1975-02-18T00:00:00.000Z\",\n  \"height\": 175,\n  \"weight\": 90,\n  \"healthStatus\": \"FAIR\",\n  \"activityLevel\": \"SEDENTARY\",\n  \"goal\": \"IMPROVE_HEALTH\",\n  \"mealsPerDay\": 3,\n  \"medicalConditions\": [\"HYPERTENSION\", \"DIABETES_TYPE_2\"],\n  \"sodiumLimit\": 1500,\n  \"potassiumLimit\": 2000,\n  \"proteinLimit\": 80,\n  \"fiberTarget\": 25,\n  \"medications\": \"Metformin, Lisinopril\",\n  \"macroRatio\": \"LOW_FAT\",\n  \"maxPrepTimePerMeal\": 30\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{user2_id}}/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user2_id}}",
+								"profile"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Profile Operations",
+			"item": [
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/{{user1_id}}/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user1_id}}",
+								"profile"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"weight\": 76,\n  \"goal\": \"MAINTAIN_WEIGHT\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{user1_id}}/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user1_id}}",
+								"profile"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Calculated Needs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/{{user1_id}}/profile/calculated-needs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user1_id}}",
+								"profile",
+								"calculated-needs"
+							]
+						}
+					}
+				},
+				{
+					"name": "Recalculate Needs",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/{{user1_id}}/profile/recalculate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user1_id}}",
+								"profile",
+								"recalculate"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Profile",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/{{user1_id}}/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user1_id}}",
+								"profile"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Weight History",
+			"item": [
+				{
+					"name": "Add Weight Entry",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"weight\": 76.5,\n  \"notes\": \"Après entraînement\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{user1_id}}/history/weight",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user1_id}}",
+								"history",
+								"weight"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Weight History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/{{user1_id}}/history/weight",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user1_id}}",
+								"history",
+								"weight"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Meal Consumption History",
+			"item": [
+				{
+					"name": "Add Meal Consumption",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"mealId\": \"test-meal-123\",\n  \"mealType\": \"LUNCH\",\n  \"rating\": 5,\n  \"notes\": \"Excellent repas\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{user1_id}}/history/meals",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user1_id}}",
+								"history",
+								"meals"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Meal Consumption History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/{{user1_id}}/history/meals",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user1_id}}",
+								"history",
+								"meals"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "7. Personalized Meal Suggestions",
+			"item": [
+				{
+					"name": "Get Suggestions - All Meals (User 1)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/meals/suggestions?userId={{user1_id}}&limit=5",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meals",
+								"suggestions"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{user1_id}}",
+									"description": "User ID from profile"
+								},
+								{
+									"key": "limit",
+									"value": "5",
+									"description": "Number of suggestions"
+								}
+							]
+						},
+						"description": "Get personalized meal suggestions based on User 1 profile (athlete, muscle gain)"
+					}
+				},
+				{
+					"name": "Get Suggestions - Breakfast (User 1)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/meals/suggestions?userId={{user1_id}}&mealType=BREAKFAST&limit=3",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meals",
+								"suggestions"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{user1_id}}"
+								},
+								{
+									"key": "mealType",
+									"value": "BREAKFAST",
+									"description": "BREAKFAST, LUNCH, DINNER, SNACK"
+								},
+								{
+									"key": "limit",
+									"value": "3"
+								}
+							]
+						},
+						"description": "Get breakfast suggestions for User 1"
+					}
+				},
+				{
+					"name": "Get Suggestions - Lunch (User 1)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/meals/suggestions?userId={{user1_id}}&mealType=LUNCH&limit=3",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meals",
+								"suggestions"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{user1_id}}"
+								},
+								{
+									"key": "mealType",
+									"value": "LUNCH"
+								},
+								{
+									"key": "limit",
+									"value": "3"
+								}
+							]
+						},
+						"description": "Get lunch suggestions for User 1"
+					}
+				},
+				{
+					"name": "Get Suggestions - Dinner (User 1)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/meals/suggestions?userId={{user1_id}}&mealType=DINNER&limit=3",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meals",
+								"suggestions"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{user1_id}}"
+								},
+								{
+									"key": "mealType",
+									"value": "DINNER"
+								},
+								{
+									"key": "limit",
+									"value": "3"
+								}
+							]
+						},
+						"description": "Get dinner suggestions for User 1"
+					}
+				},
+				{
+					"name": "Get Suggestions - Weight Loss (User 2)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/meals/suggestions?userId={{user2_id}}&limit=5",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meals",
+								"suggestions"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{user2_id}}",
+									"description": "User 2 - Weight Loss profile"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						},
+						"description": "Get suggestions for User 2 (weight loss, conservative)"
+					}
+				},
+				{
+					"name": "Get Suggestions - Vegetarian (User 3)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/meals/suggestions?userId={{user3_id}}&limit=5",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meals",
+								"suggestions"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{user3_id}}",
+									"description": "User 3 - Vegetarian profile"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						},
+						"description": "Get suggestions for User 3 (vegetarian, excluded aliments)"
+					}
+				},
+				{
+					"name": "Get Suggestions - Allergies (User 1 - Scenario 5)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/meals/suggestions?userId={{user1_id}}&limit=5",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meals",
+								"suggestions"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{user1_id}}",
+									"description": "User with allergies (PEANUTS, TREE_NUTS, MILK, EGGS)"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						},
+						"description": "Get suggestions for user with allergies - should exclude allergenic ingredients"
+					}
+				}
+			]
+		}
+	]
+}
