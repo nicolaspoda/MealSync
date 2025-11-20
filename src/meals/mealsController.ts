@@ -101,6 +101,39 @@ export class MealsController extends Controller {
   }
 
   /**
+   * Get personalized meal suggestions based on user profile
+   * Uses the user's complete profile to filter and score meals automatically
+   * @param userId The user's identifier (required)
+   * @param mealType Optional meal type (BREAKFAST, LUNCH, DINNER, SNACK)
+   * @param limit Maximum number of suggestions to return (default: 10)
+   */
+  @Get("suggestions")
+  @Security("api_key")
+  public async getPersonalizedSuggestions(
+    @Query() userId: string,
+    @Query() mealType?: string,
+    @Query() limit?: number
+  ): Promise<Meal[]> {
+    if (!userId) {
+      this.setStatus(400);
+      throw new Error("userId is required");
+    }
+    
+    const service = new MealsService();
+    
+    // Cast mealType string to MealType enum
+    const mealTypeEnum = mealType as any;
+    
+    const suggestions = await service.getPersonalizedSuggestions(
+      userId,
+      mealTypeEnum,
+      limit || 10
+    );
+    
+    return suggestions;
+  }
+
+  /**
    * Analyze the nutritional composition of a specific meal.
    * Returns detailed breakdown of calories, macronutrients, and nutritional density.
    * @param mealId The meal's identifier
@@ -208,8 +241,8 @@ export class MealsController extends Controller {
   @Post("analyze")
   @Security("api_key")
   public async analyzeMeal(
-    @Query() fromDb?: boolean,
-    @Body() payload: MealAnalysisUnifiedParams
+    @Body() payload: MealAnalysisUnifiedParams,
+    @Query() fromDb?: boolean
   ): Promise<MealAnalysisResult> {
     const service = new MealsService();
     

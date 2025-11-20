@@ -97,6 +97,7 @@ app.use(function errorHandler(
       error: err.message,
       stack: err.stack,
     });
+    
     return res.status(500).json({
       message: "Internal Server Error",
     });
