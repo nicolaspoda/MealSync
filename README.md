@@ -16,7 +16,9 @@ Ce service fournit une API REST pour gérer des plats, leurs ingrédients, leurs
 * ✅ Informations nutritionnelles détaillées (calories, macronutriments)
 * ✅ Filtres avancés par ingrédients, calories et macro-nutriments
 * ✅ Recherche par temps de préparation
-* ✅ Suggestions de plats personnalisées
+* ✅ Suggestions de plats personnalisées basées sur le profil utilisateur
+* ✅ Système de profils utilisateurs complet (objectifs, allergies, préférences)
+* ✅ Calcul automatique des besoins métaboliques (BMR, TDEE, calories cibles)
 * ✅ Analyse nutritionnelle de repas
 * ✅ Génération de programmes nutritionnels quotidiens
 * ✅ Gestion des aliments, équipements et macronutriments
@@ -255,6 +257,30 @@ Par défaut : `http://localhost:3000`
 |---------|-------|-------------|
 | POST | `/meal-plans/generate` | Générer un plan de repas personnalisé |
 
+### Utilisateurs et Profils (`/users`)
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| POST | `/users` | Créer un nouvel utilisateur |
+| GET | `/users/{userId}` | Récupérer un utilisateur |
+| PUT | `/users/{userId}` | Mettre à jour un utilisateur |
+| DELETE | `/users/{userId}` | Supprimer un utilisateur |
+| POST | `/users/{userId}/profile` | Créer ou mettre à jour le profil utilisateur |
+| GET | `/users/{userId}/profile` | Récupérer le profil utilisateur |
+| PUT | `/users/{userId}/profile` | Mettre à jour le profil utilisateur |
+| GET | `/users/{userId}/profile/calculated-needs` | Obtenir les besoins métaboliques calculés (BMR, TDEE, calories cibles) |
+| POST | `/users/{userId}/profile/recalculate` | Recalculer les besoins métaboliques |
+| GET | `/users/{userId}/history/weight` | Historique des poids |
+| POST | `/users/{userId}/history/weight` | Ajouter une entrée de poids |
+| GET | `/users/{userId}/history/meals` | Historique de consommation de repas |
+| POST | `/users/{userId}/history/meals` | Enregistrer la consommation d'un repas |
+
+### Suggestions personnalisées (`/meals/suggestions`)
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/meals/suggestions?userId={userId}&mealType={type}&limit={n}` | Obtenir des suggestions de repas personnalisées basées sur le profil utilisateur (objectifs, allergies, préférences, etc.) |
+
 ---
 
 ## 💡 Exemples d'utilisation
@@ -286,11 +312,16 @@ curl -H "x-api-key: your-api-key-here" \
   "http://localhost:3000/meals/paginated?page=1&limit=10&minCalories=200&maxCalories=500"
 ```
 
-### Exemple 4 : Obtenir des suggestions de plats
+### Exemple 4 : Obtenir des suggestions de plats personnalisées
 
 ```bash
+# Suggestions basées sur le profil utilisateur
 curl -H "x-api-key: your-api-key-here" \
-  "http://localhost:3000/meals/suggestions?targetCalories=2000&maxTime=30&limit=5"
+  "http://localhost:3000/meals/suggestions?userId=user-id-here&limit=5"
+
+# Suggestions pour un type de repas spécifique
+curl -H "x-api-key: your-api-key-here" \
+  "http://localhost:3000/meals/suggestions?userId=user-id-here&mealType=BREAKFAST&limit=3"
 ```
 
 ### Exemple 5 : Générer un plan de repas
