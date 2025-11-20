@@ -1,26 +1,48 @@
-import type { 
-  MealPlan, 
-  MealPlanGenerationParams, 
-  DailyMealPlan, 
+import type {
+  MealPlan,
+  MealPlanGenerationParams,
+  DailyMealPlan,
   PlannedMeal,
   NutritionalObjectives,
-  DietaryConstraints
+  DietaryConstraints,
 } from "./mealPlan";
 import { prisma } from "../shared/prisma";
+import { UserProfileService } from "../users/userProfileService";
+import { MealPlanGenerationError } from "./errors";
+
+type ResolvedProfile = NonNullable<
+  Awaited<ReturnType<UserProfileService["getProfile"]>>
+>;
 
 export class MealPlanService {
-  
+  private readonly userProfileService = new UserProfileService();
+
   /**
    * Generate a personalized meal plan based on objectives and constraints
    */
   public async generateMealPlan(params: MealPlanGenerationParams): Promise<MealPlan> {
-    const { objectives, constraints = {} } = params;
-    
+    const profile = params.userId
+      ? await this.userProfileService.getProfile(params.userId)
+      : null;
+
+    if (params.userId && !profile) {
+      throw new MealPlanGenerationError("Profil utilisateur introuvable", 404, {
+        userId: params.userId,
+      });
+    }
+
+    const objectives = this.resolveObjectives(profile, params.objectives);
+    const constraints = this.resolveConstraints(profile, params.constraints);
+
     // Get available meals based on constraints
     const availableMeals = await this.getAvailableMeals(constraints);
     
     if (availableMeals.length === 0) {
-      throw new Error("No meals available with the given constraints");
+      throw new MealPlanGenerationError(
+        "Aucun repas n'est disponible avec ces contraintes",
+        422,
+        { constraints }
+      );
     }
     
     // Calculate meals distribution based on mealsPerDay
@@ -32,7 +54,8 @@ export class MealPlanService {
       availableMeals,
       objectives,
       mealsPerDay,
-      caloriesPerMeal
+      caloriesPerMeal,
+      constraints
     );
     
     // Create daily meal plan
@@ -110,10 +133,11 @@ export class MealPlanService {
    * Select optimal meals to meet nutritional objectives
    */
   private async selectOptimalMeals(
-    availableMeals: any[], 
+    availableMeals: any[],
     objectives: NutritionalObjectives,
     mealsPerDay: number,
-    targetCaloriesPerMeal: number
+    targetCaloriesPerMeal: number,
+    constraints?: DietaryConstraints
   ): Promise<any[]> {
     const selectedMeals: any[] = [];
     const mealTypes = this.getMealTypes(mealsPerDay);
@@ -133,8 +157,23 @@ export class MealPlanService {
       };
     });
     
+    const filteredMeals =
+      constraints?.maxPreparationTime && constraints.maxPreparationTime > 0
+        ? mealsWithNutrition.filter(
+            (meal) => meal.preparationTime <= constraints.maxPreparationTime!
+          )
+        : mealsWithNutrition;
+
+    if (filteredMeals.length === 0) {
+      throw new MealPlanGenerationError(
+        "Aucun repas ne respecte le temps de préparation maximum demandé",
+        422,
+        { maxPreparationTime: constraints?.maxPreparationTime }
+      );
+    }
+
     // Sort meals by how close they are to target calories per meal
-    const sortedMeals = mealsWithNutrition.sort((a, b) => {
+    const sortedMeals = filteredMeals.sort((a, b) => {
       const diffA = Math.abs(a.calories - targetCaloriesPerMeal);
       const diffB = Math.abs(b.calories - targetCaloriesPerMeal);
       return diffA - diffB;
@@ -222,5 +261,118 @@ export class MealPlanService {
       nutritionalSummary,
       totalPreparationTime
     };
+  }
+
+  /**
+   * Resolve objectives from explicit payload or user profile
+   */
+  private resolveObjectives(
+    profile: ResolvedProfile | null,
+    overrides?: NutritionalObjectives
+  ): NutritionalObjectives {
+    const targetCalories =
+      overrides?.targetCalories ??
+      profile?.targetCalories ??
+      profile?.tdee ??
+      null;
+
+    const normalizedTargetCalories = Number(targetCalories);
+
+    if (!Number.isFinite(normalizedTargetCalories) || normalizedTargetCalories <= 0) {
+      throw new MealPlanGenerationError(
+        "Impossible de déterminer les calories cibles. Fournissez-les ou complétez le profil utilisateur.",
+        400
+      );
+    }
+
+    return {
+      targetCalories: normalizedTargetCalories,
+      macros: overrides?.macros ?? this.deriveMacroObjectives(profile),
+    };
+  }
+
+  /**
+   * Merge dietary constraints with profile data
+   */
+  private resolveConstraints(
+    profile: ResolvedProfile | null,
+    overrides?: DietaryConstraints
+  ): DietaryConstraints {
+    const merged: DietaryConstraints = {
+      ...(overrides || {}),
+    };
+
+    merged.mealsPerDay =
+      overrides?.mealsPerDay ?? profile?.mealsPerDay ?? 3;
+
+    const excludedAliments = this.collectExcludedAliments(
+      profile,
+      overrides?.excludedAliments
+    );
+    if (excludedAliments.length > 0) {
+      merged.excludedAliments = excludedAliments;
+    }
+
+    const availableEquipments =
+      overrides?.availableEquipments ??
+      (Array.isArray(profile?.availableEquipments)
+        ? (profile?.availableEquipments as string[])
+        : undefined);
+    if (availableEquipments && availableEquipments.length > 0) {
+      merged.availableEquipments = Array.from(
+        new Set(
+          availableEquipments.filter(
+            (value): value is string => Boolean(value && value.length > 0)
+          )
+        )
+      );
+    }
+
+    const maxPrepTime =
+      overrides?.maxPreparationTime ?? profile?.maxPrepTimePerMeal;
+    if (typeof maxPrepTime === "number" && maxPrepTime > 0) {
+      merged.maxPreparationTime = maxPrepTime;
+    }
+
+    return merged;
+  }
+
+  private deriveMacroObjectives(profile: ResolvedProfile | null) {
+    if (!profile) {
+      return undefined;
+    }
+
+    if (
+      profile.proteinTarget ||
+      profile.carbTarget ||
+      profile.fatTarget
+    ) {
+      return {
+        protein: profile.proteinTarget ?? undefined,
+        carbohydrates: profile.carbTarget ?? undefined,
+        lipids: profile.fatTarget ?? undefined,
+      };
+    }
+
+    return undefined;
+  }
+
+  private collectExcludedAliments(
+    profile: ResolvedProfile | null,
+    overrides?: string[]
+  ): string[] {
+    const combined = [
+      ...(overrides || []),
+      ...(profile?.excludedAliments || []),
+      ...(profile?.allergies || []),
+      ...(profile?.intolerances || []),
+      ...(profile?.dislikedFoods || []),
+    ];
+
+    const sanitized = combined
+      .filter((value): value is string => Boolean(value && value.length > 0))
+      .map((value) => value.trim());
+
+    return Array.from(new Set(sanitized));
   }
 }

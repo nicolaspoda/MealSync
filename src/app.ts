@@ -10,7 +10,8 @@ import rateLimit from "express-rate-limit";
 import { RegisterRoutes } from "../build/routes";
 import swaggerUi from "swagger-ui-express";
 import { ValidateError } from "tsoa";
-import { logger } from "./shared/logger"; 
+import { logger } from "./shared/logger";
+import { MealPlanGenerationError } from "./meal-plans/errors";
 
 export const app = express();
 
@@ -89,6 +90,17 @@ app.use(function errorHandler(
     return res.status(422).json({
       message: "Validation Failed",
       details: err?.fields,
+    });
+  }
+  if (err instanceof MealPlanGenerationError) {
+    logger.warn("Meal plan generation error", {
+      path: req.path,
+      message: err.message,
+      details: err.details,
+    });
+    return res.status(err.statusCode).json({
+      message: err.message,
+      details: err.details,
     });
   }
   if (err instanceof Error) {
