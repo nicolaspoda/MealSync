@@ -256,6 +256,7 @@ Par défaut : `http://localhost:3000`
 | Méthode | Route | Description |
 |---------|-------|-------------|
 | POST | `/meal-plans/generate` | Générer un plan de repas personnalisé |
+> 💡 Vous pouvez désormais fournir simplement un `userId` : l’API récupère automatiquement les objectifs (calories, macros) et contraintes (allergies, équipements, temps de préparation) du profil utilisateur, puis applique vos éventuels overrides (`objectives`, `constraints`).
 
 ### Utilisateurs et Profils (`/users`)
 

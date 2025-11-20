@@ -1020,6 +1020,39 @@
 						},
 						"description": "Generate a personalized meal plan based on nutritional objectives and dietary constraints."
 					}
+				},
+				{
+					"name": "Generate Meal Plan (from Profile)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"constraints\": {\n    \"maxPreparationTime\": 30\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/meal-plans/generate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"meal-plans",
+								"generate"
+							]
+						},
+						"description": "Generate a meal plan using an existing user profile (identified by `userId`). Optional overrides like constraints/objectives can still be provided."
+					}
 				}
 			]
 		},
