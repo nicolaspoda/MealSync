@@ -85,14 +85,13 @@ export class PreparationsService {
     return updatedPreparation;
   }
 
-  public async delete(id: string): Promise<boolean> {
+  public async delete(id: string): Promise<void> {
     try {
       await prisma.preparation.delete({
         where: { id },
       });
-      return true;
     } catch (error) {
-      return false;
+      throw new Error(`Failed to delete preparation with id ${id}`);
     }
   }
 }

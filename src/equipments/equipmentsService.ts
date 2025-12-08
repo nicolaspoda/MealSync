@@ -73,14 +73,13 @@ export class EquipmentsService {
     return updatedEquipment;
   }
 
-  public async delete(id: string): Promise<boolean> {
+  public async delete(id: string): Promise<void> {
     try {
       await prisma.equipment.delete({
         where: { id },
       });
-      return true;
     } catch (error) {
-      return false;
+      throw new Error(`Failed to delete equipment with id ${id}`);
     }
   }
 }

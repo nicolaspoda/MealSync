@@ -90,12 +90,18 @@ export class PreparationsController extends Controller {
    */
   @SuccessResponse("204", "Deleted")
   @Delete("{preparationId}")
+  @Security("api_key")
   public async deletePreparation(@Path() preparationId: string): Promise<void> {
-    const success = await new PreparationsService().delete(preparationId);
-    if (!success) {
-      this.setStatus(404);
-      throw new Error("Preparation not found");
+    try {
+      await new PreparationsService().delete(preparationId);
+      this.setStatus(204);
+    } catch (error: unknown) {
+      const err = error as Error;
+      if (err.message.includes("not found") || err.message.includes("Record to delete does not exist")) {
+        this.setStatus(404);
+        throw new Error("Preparation not found");
+      }
+      throw error;
     }
-    this.setStatus(204);
   }
 }

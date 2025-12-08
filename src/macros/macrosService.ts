@@ -73,14 +73,13 @@ export class MacrosService {
     return updatedMacro;
   }
 
-  public async delete(id: string): Promise<boolean> {
+  public async delete(id: string): Promise<void> {
     try {
       await prisma.macro.delete({
         where: { id },
       });
-      return true;
     } catch (error) {
-      return false;
+      throw new Error(`Failed to delete macro with id ${id}`);
     }
   }
 }

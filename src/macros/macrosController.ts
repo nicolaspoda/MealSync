@@ -90,12 +90,18 @@ export class MacrosController extends Controller {
    */
   @SuccessResponse("204", "Deleted")
   @Delete("{macroId}")
+  @Security("api_key")
   public async deleteMacro(@Path() macroId: string): Promise<void> {
-    const success = await new MacrosService().delete(macroId);
-    if (!success) {
-      this.setStatus(404);
-      throw new Error("Macro not found");
+    try {
+      await new MacrosService().delete(macroId);
+      this.setStatus(204);
+    } catch (error: unknown) {
+      const err = error as Error;
+      if (err.message.includes("not found") || err.message.includes("Record to delete does not exist")) {
+        this.setStatus(404);
+        throw new Error("Macro not found");
+      }
+      throw error;
     }
-    this.setStatus(204);
   }
 }

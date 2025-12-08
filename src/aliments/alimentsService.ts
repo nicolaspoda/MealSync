@@ -120,14 +120,13 @@ export class AlimentsService {
     return this.get(id);
   }
 
-  public async delete(id: string): Promise<boolean> {
+  public async delete(id: string): Promise<void> {
     try {
       await prisma.aliment.delete({
         where: { id },
       });
-      return true;
     } catch (error) {
-      return false;
+      throw new Error(`Failed to delete aliment with id ${id}`);
     }
   }
 }

@@ -90,12 +90,18 @@ export class EquipmentsController extends Controller {
    */
   @SuccessResponse("204", "Deleted")
   @Delete("{equipmentId}")
+  @Security("api_key")
   public async deleteEquipment(@Path() equipmentId: string): Promise<void> {
-    const success = await new EquipmentsService().delete(equipmentId);
-    if (!success) {
-      this.setStatus(404);
-      throw new Error("Equipment not found");
+    try {
+      await new EquipmentsService().delete(equipmentId);
+      this.setStatus(204);
+    } catch (error: unknown) {
+      const err = error as Error;
+      if (err.message.includes("not found") || err.message.includes("Record to delete does not exist")) {
+        this.setStatus(404);
+        throw new Error("Equipment not found");
+      }
+      throw error;
     }
-    this.setStatus(204);
   }
 }

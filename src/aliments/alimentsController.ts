@@ -90,12 +90,18 @@ export class AlimentsController extends Controller {
    */
   @SuccessResponse("204", "Deleted")
   @Delete("{alimentId}")
+  @Security("api_key")
   public async deleteAliment(@Path() alimentId: string): Promise<void> {
-    const success = await new AlimentsService().delete(alimentId);
-    if (!success) {
-      this.setStatus(404);
-      throw new Error("Aliment not found");
+    try {
+      await new AlimentsService().delete(alimentId);
+      this.setStatus(204);
+    } catch (error: unknown) {
+      const err = error as Error;
+      if (err.message.includes("not found") || err.message.includes("Record to delete does not exist")) {
+        this.setStatus(404);
+        throw new Error("Aliment not found");
+      }
+      throw error;
     }
-    this.setStatus(204);
   }
 }

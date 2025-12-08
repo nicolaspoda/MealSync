@@ -216,12 +216,17 @@ export class MealsController extends Controller {
   @Delete("{mealId}")
   @Security("api_key")
   public async deleteMeal(@Path() mealId: string): Promise<void> {
-    const success = await new MealsService().delete(mealId);
-    if (!success) {
-      this.setStatus(404);
-      throw new Error("Meal not found");
+    try {
+      await new MealsService().delete(mealId);
+      this.setStatus(204);
+    } catch (error: unknown) {
+      const err = error as Error;
+      if (err.message.includes("not found") || err.message.includes("Record to delete does not exist")) {
+        this.setStatus(404);
+        throw new Error("Meal not found");
+      }
+      throw error;
     }
-    this.setStatus(204);
   }
   
   /**
