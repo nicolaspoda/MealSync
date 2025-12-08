@@ -16,11 +16,11 @@ import ValidateErrorJSON from "../shared/validationErrorJSON";
 @Tags("Meal Plans")
 export class MealPlansController extends Controller {
   /**
-   * Generate a personalized meal plan based on nutritional objectives and dietary constraints.
-   * The system will create an optimal daily meal plan that matches your caloric and macronutrient goals
-   * while respecting your equipment availability and food preferences.
+   * Generate a personalized meal plan either from a user profile (recommended) or from explicit nutritional objectives.
+   * When a `userId` is provided, the service automatically loads the profile (target calories, allergies, equipments, prep time, etc.)
+   * and merges it with any overrides passed in the payload.
    * 
-   * @param requestBody Parameters including objectives (target calories, macros) and constraints (excluded aliments, available equipments, meals per day)
+   * @param requestBody Parameters including optional userId, objectives (target calories, macros) and constraints (excluded aliments, available equipments, meals per day)
    */
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("201", "Meal Plan Generated")

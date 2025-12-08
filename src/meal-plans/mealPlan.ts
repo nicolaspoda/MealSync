@@ -58,13 +58,33 @@ export interface DietaryConstraints {
    * @maximum 6 mealsPerDay must be at most 6
    */
   mealsPerDay?: number;
+
+  /**
+   * Maximum preparation time allowed per meal (minutes)
+   * @minimum 5 maxPreparationTime must be at least 5 minutes
+   * @maximum 240 maxPreparationTime must be at most 4 hours
+   */
+  maxPreparationTime?: number;
 }
 
 /**
  * Parameters for generating a meal plan
  */
 export interface MealPlanGenerationParams {
-  objectives: NutritionalObjectives;
+  /**
+   * Optional user profile ID to pull objectives and constraints from.
+   * When provided, explicit objectives/constraints override profile values.
+   */
+  userId?: string;
+
+  /**
+   * Nutritional objectives. Optional if userId is provided.
+   */
+  objectives?: NutritionalObjectives;
+
+  /**
+   * Dietary constraints or overrides.
+   */
   constraints?: DietaryConstraints;
 }
 
