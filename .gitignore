@@ -2,5 +2,7 @@ node_modules
 build
 /src/generated
 .env
+.env.tmp
+.env.local
 *.log
 logs/
