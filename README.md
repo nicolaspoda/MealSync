@@ -111,7 +111,7 @@ npm start
 
 Une fois le serveur démarré, accédez à la documentation interactive Swagger UI :
 
-**URL** : `http://localhost:3000/docs`
+**URL** : `http://localhost:3000/api-docs`
 
 La documentation Swagger permet de :
 * Visualiser tous les endpoints disponibles
@@ -378,7 +378,7 @@ BASE_URL=http://localhost:3000 npx ts-node src/scripts/testRoutes.ts
 
 Pour une documentation complète et interactive de l'API, consultez :
 
-**Swagger UI** : `http://localhost:3000/docs`
+**Swagger UI** : `http://localhost:3000/api-docs`
 
 La documentation Swagger inclut :
 * Tous les endpoints avec leurs descriptions
@@ -499,4 +499,4 @@ ISC
 
 ---
 
-**Pour toute question ou problème, consultez la documentation Swagger à `/docs` ou ouvrez une issue sur GitHub.**
+**Pour toute question ou problème, consultez la documentation Swagger à `/api-docs` ou ouvrez une issue sur GitHub.**

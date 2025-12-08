@@ -9,6 +9,6 @@ app.listen(port, () => {
   logger.info(`MealSync API server started`, {
     port,
     environment: process.env.NODE_ENV || "development",
-    docs: `http://localhost:${port}/docs`,
+    docs: `http://localhost:${port}/api-docs`,
   });
 });
