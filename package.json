@@ -4,9 +4,6 @@
   "description": "Plateforme de gestion des repas et de l'alimentation orientée nutrition et sport. MealSync permet aux utilisateurs de créer et gérer des plats et recettes, consulter les informations nutritionnelles (calories, macro-nutriments), filtrer par ingrédients et trouver des idées de repas en fonction du temps disponible pour cuisiner.",
   "main": "build/src/server.js",
   "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
     "tsoa:routes": "tsoa routes",
     "tsoa:spec": "tsoa spec",
     "prisma:generate": "prisma generate",
@@ -42,18 +39,12 @@
     "winston": "^3.18.3"
   },
   "devDependencies": {
-    "@jest/globals": "^30.2.0",
     "@stoplight/prism-cli": "^5.14.2",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.4",
-    "@types/jest": "^30.0.0",
     "@types/node": "^24.9.1",
-    "@types/supertest": "^6.0.3",
     "concurrently": "^9.2.1",
-    "jest": "^30.2.0",
     "nodemon": "^3.1.10",
-    "supertest": "^7.1.4",
-    "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
