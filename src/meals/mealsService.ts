@@ -1,8 +1,10 @@
 import type { Meal, PaginatedMeals, MealListParams, MealAnalysisParams, MealAnalysisResult, MealAnalysisDBParams, NutritionAnalysis } from "./meal";
 import { prisma } from "../shared/prisma";
+import { logger } from "../shared/logger";
 import { UserProfileService } from "../users/userProfileService";
 import { MetabolicCalculator } from "../users/metabolicCalculator";
-import type { MealType } from "../users/userProfile";
+import type { MealType, UserProfile } from "../users/userProfile";
+import type { Prisma } from "../generated/prisma";
 
 export type MealCreationParams = Omit<
   Meal,
@@ -95,7 +97,7 @@ export class MealsService {
     const skip = (page - 1) * limit;
 
     // Build where clause for filters
-    const whereClause: any = {};
+    const whereClause: Prisma.MealWhereInput = {};
 
     if (title) {
       whereClause.title = {
@@ -267,17 +269,16 @@ export class MealsService {
         carbs_100g === undefined &&
         fat_100g === undefined
       ) {
-        const dbAlim = await prisma.aliment.findUnique({ where: { id: alimentId } });
+        const dbAlim = await prisma.aliment.findUnique({ 
+          where: { id: alimentId },
+          include: { macros: { include: { macro: true } } }
+        });
         if (dbAlim) {
           // assign if present in DB
-          // some aliment records in the project may only have `cal_100g`.
-          // guard with any casts to avoid type errors if the prisma typing doesn't include macros.
-          const dbAny: any = dbAlim as any;
-          cal_100g = cal_100g ?? dbAny.cal_100g;
-          protein_100g = protein_100g ?? dbAny.protein_100g;
-          carbs_100g = carbs_100g ?? dbAny.carbs_100g;
-          fat_100g = fat_100g ?? dbAny.fat_100g;
-          name = name ?? dbAny.name;
+          // Note: Prisma schema only has cal_100g, macros are in separate table
+          cal_100g = cal_100g ?? dbAlim.cal_100g;
+          name = name ?? dbAlim.name;
+          // Macros would need to be calculated from dbAlim.macros if needed
         }
       }
 
@@ -339,35 +340,51 @@ export class MealsService {
     const names = Array.from(new Set(items.map((a) => a.name).filter(Boolean) as string[]));
 
     // Build prisma where clause depending on provided ids/names
-    const or: any[] = [];
+    const or: Prisma.AlimentWhereInput[] = [];
     if (ids.length > 0) or.push({ id: { in: ids } });
     // match names exactly (case-sensitive). If you prefer case-insensitive matching,
     // we can change to equals + mode: 'insensitive' per name.
     for (const n of names) or.push({ name: n });
 
-    const dbAliments = or.length > 0 ? await prisma.aliment.findMany({ where: { OR: or } }) : [];
-    const mapById: Record<string, any> = {};
-    const mapByName: Record<string, any> = {};
+    const dbAliments = or.length > 0 ? await prisma.aliment.findMany({ 
+      where: { OR: or },
+      include: { macros: { include: { macro: true } } }
+    }) : [];
+    const mapById: Record<string, typeof dbAliments[0]> = {};
+    const mapByName: Record<string, typeof dbAliments[0]> = {};
     for (const d of dbAliments) {
-      const anyd: any = d;
-      if (anyd.id) mapById[anyd.id] = anyd;
-      if (anyd.name) mapByName[anyd.name] = anyd;
+      if (d.id) mapById[d.id] = d;
+      if (d.name) mapByName[d.name] = d;
     }
 
     for (const a of items) {
       const { alimentId, name, quantity } = a;
       // prefer id lookup, fall back to name lookup
-      const dbAny = alimentId ? mapById[alimentId] : (name ? mapByName[name] : undefined);
+      const dbAliment = alimentId ? mapById[alimentId] : (name ? mapByName[name] : undefined);
 
-      if (!dbAny) {
+      if (!dbAliment) {
         warnings.push(`Aliment ${alimentId ?? name ?? '<unknown>'} not found in database`);
       }
 
-      const resolvedName = dbAny?.name ?? name;
-      const cal_100g = dbAny?.cal_100g;
-      const protein_100g = dbAny?.protein_100g;
-      const carbs_100g = dbAny?.carbs_100g;
-      const fat_100g = dbAny?.fat_100g;
+      const resolvedName = dbAliment?.name ?? name;
+      const cal_100g = dbAliment?.cal_100g;
+      // Calculate macros from dbAliment.macros if available
+      let protein_100g: number | undefined;
+      let carbs_100g: number | undefined;
+      let fat_100g: number | undefined;
+      
+      if (dbAliment?.macros) {
+        for (const alimentMacro of dbAliment.macros) {
+          const macroName = alimentMacro.macro.name.toLowerCase();
+          if (macroName.includes('protéine') || macroName.includes('protein')) {
+            protein_100g = alimentMacro.quantity;
+          } else if (macroName.includes('glucide') || macroName.includes('carb')) {
+            carbs_100g = alimentMacro.quantity;
+          } else if (macroName.includes('lipide') || macroName.includes('fat')) {
+            fat_100g = alimentMacro.quantity;
+          }
+        }
+      }
 
       const factor = (quantity ?? 0) / 100;
 
@@ -475,14 +492,14 @@ export class MealsService {
     return this.get(id);
   }
 
-  public async delete(id: string): Promise<boolean> {
+  public async delete(id: string): Promise<void> {
     try {
       await prisma.meal.delete({
         where: { id },
       });
-      return true;
     } catch (error) {
-      return false;
+      logger.error("Failed to delete meal", { mealId: id, error });
+      throw new Error(`Failed to delete meal with id ${id}`);
     }
   }
 
@@ -491,7 +508,7 @@ export class MealsService {
     params: { page?: number; limit?: number } = {}
   ): Promise<PaginatedMeals> {
     try {
-      console.log(`[DEBUG] getQuickMeals called with maxTime: ${maxTime}, params:`, params);
+      logger.debug("getQuickMeals called", { maxTime, params });
       
       // Validate maxTime parameter
       if (!maxTime || maxTime <= 0) {
@@ -499,7 +516,7 @@ export class MealsService {
       }
 
       const { page = 1, limit = 10 } = params;
-      console.log(`[DEBUG] Using page: ${page}, limit: ${limit}`);
+      logger.debug("Using pagination", { page, limit });
 
       // Get all meals with their preparation times
       const allMeals = await prisma.meal.findMany({
@@ -525,7 +542,7 @@ export class MealsService {
         },
       });
 
-      console.log(`[DEBUG] Found ${allMeals.length} total meals`);
+      logger.debug("Found total meals", { count: allMeals.length });
 
       // Filter meals by total preparation time and sort by time
       const filteredMeals = allMeals
@@ -534,13 +551,13 @@ export class MealsService {
             (sum, prep) => sum + (prep.preparation?.estimated_time || 0), 
             0
           );
-          console.log(`[DEBUG] Meal "${meal.title}" has preparation time: ${totalTime} minutes`);
+          logger.debug("Meal preparation time calculated", { mealTitle: meal.title, totalTime });
           return { ...meal, totalPreparationTime: totalTime };
         })
         .filter(meal => meal.totalPreparationTime <= maxTime)
         .sort((a, b) => a.totalPreparationTime - b.totalPreparationTime);
 
-      console.log(`[DEBUG] After filtering by maxTime ${maxTime}: ${filteredMeals.length} meals`);
+      logger.debug("After filtering by maxTime", { maxTime, filteredCount: filteredMeals.length });
 
       // Apply pagination
       const total = filteredMeals.length;
@@ -548,7 +565,7 @@ export class MealsService {
       const skip = (page - 1) * limit;
       const paginatedMeals = filteredMeals.slice(skip, skip + limit);
 
-      console.log(`[DEBUG] Returning ${paginatedMeals.length} meals after pagination`);
+      logger.debug("Returning paginated meals", { returnedCount: paginatedMeals.length });
 
       return {
         data: paginatedMeals,
@@ -562,17 +579,17 @@ export class MealsService {
         },
       };
     } catch (error) {
-      console.error(`[ERROR] getQuickMeals failed:`, error);
+      logger.error("getQuickMeals failed", { error, maxTime, params });
       throw error;
     }
   }
 
   public async getSuggestions(filters: SuggestionFilters): Promise<Meal[]> {
     try {
-      console.log(`[DEBUG] getSuggestions called with filters:`, JSON.stringify(filters, null, 2));
+      logger.debug("getSuggestions called", { filters });
       
       // Build where clause based on filters
-      const whereClause: any = {};
+      const whereClause: Prisma.MealWhereInput = {};
       
       // Filter by excluded aliments
       if (filters.excludedAliments && filters.excludedAliments.length > 0) {
@@ -587,7 +604,7 @@ export class MealsService {
             }
           };
         } catch (err) {
-          console.error(`[ERROR] Error building excluded aliments filter:`, err);
+          logger.warn("Error building excluded aliments filter", { error: err, filters });
           // Continue without this filter
         }
       }
@@ -609,7 +626,7 @@ export class MealsService {
       // If whereClause is empty, get all meals
       const where = Object.keys(whereClause).length > 0 ? whereClause : undefined;
       
-      console.log(`[DEBUG] Querying meals with where clause:`, JSON.stringify(where, null, 2));
+      logger.debug("Querying meals with where clause", { where });
       
       let meals;
       try {
@@ -644,19 +661,21 @@ export class MealsService {
             }
           }
         });
-        console.log(`[DEBUG] Prisma query successful, found ${meals.length} meals`);
-      } catch (prismaError: any) {
-        console.error(`[ERROR] Prisma query failed:`, prismaError);
-        console.error(`[ERROR] Prisma error message:`, prismaError?.message);
-        console.error(`[ERROR] Prisma error code:`, prismaError?.code);
-        console.error(`[ERROR] Prisma error stack:`, prismaError?.stack);
-        throw new Error(`Database query failed: ${prismaError?.message || 'Unknown error'}`);
+        logger.debug("Prisma query successful", { mealCount: meals.length });
+      } catch (prismaError: unknown) {
+        const error = prismaError as Error;
+        logger.error("Prisma query failed", { 
+          error: error.message, 
+          code: (prismaError as any)?.code,
+          stack: error.stack 
+        });
+        throw new Error(`Database query failed: ${error.message || 'Unknown error'}`);
       }
       
-      console.log(`[DEBUG] Found ${meals.length} meals matching base filters`);
+      logger.debug("Found meals matching base filters", { count: meals.length });
       
       if (meals.length === 0) {
-        console.log(`[DEBUG] No meals found, returning empty array`);
+        logger.debug("No meals found, returning empty array");
         return [];
       }
       
@@ -683,7 +702,7 @@ export class MealsService {
         if (timeFiltered.length > 0) {
           filteredMeals = timeFiltered;
         } else {
-          console.log(`[DEBUG] No meals match maxTime ${filters.maxTime}, ignoring time filter`);
+          logger.debug("No meals match maxTime, ignoring time filter", { maxTime: filters.maxTime });
           // Keep all meals but sort by preparation time (shorter first)
           filteredMeals.sort((a, b) => a.preparationTime - b.preparationTime);
         }
@@ -703,7 +722,7 @@ export class MealsService {
           filteredMeals = strictFiltered;
         } else {
           // If no meals match the calorie target, return all meals sorted by calorie proximity
-          console.log(`[DEBUG] No meals match calorie target ${filters.targetCalories}, returning all meals sorted by proximity`);
+          logger.debug("No meals match calorie target, returning all meals sorted by proximity", { targetCalories: filters.targetCalories });
           filteredMeals.sort((a, b) => {
             const diffA = Math.abs((a.calories || 0) - filters.targetCalories!);
             const diffB = Math.abs((b.calories || 0) - filters.targetCalories!);
@@ -726,23 +745,25 @@ export class MealsService {
         return scoreB - scoreA;
       });
       
-      console.log(`[DEBUG] Final filtered meals: ${filteredMeals.length}, limit: ${filters.limit}`);
+      logger.debug("Final filtered meals", { filteredCount: filteredMeals.length, limit: filters.limit });
       
       const result = filteredMeals.slice(0, filters.limit);
-      console.log(`[DEBUG] Returning ${result.length} suggestions`);
+      logger.debug("Returning suggestions", { resultCount: result.length });
       
       return result;
-    } catch (error: any) {
-      console.error(`[ERROR] getSuggestions failed:`, error);
-      console.error(`[ERROR] getSuggestions error message:`, error?.message);
-      console.error(`[ERROR] getSuggestions error stack:`, error?.stack);
+    } catch (error: unknown) {
+      const err = error as Error;
+      logger.error("getSuggestions failed", { 
+        error: err.message, 
+        stack: err.stack 
+      });
       throw error;
     }
   }
   
   public async getNutritionAnalysis(mealId: string): Promise<NutritionAnalysis | null> {
     try {
-      console.log(`[DEBUG] getNutritionAnalysis called for meal: ${mealId}`);
+      logger.debug("getNutritionAnalysis called", { mealId });
       
       const meal = await prisma.meal.findUnique({
         where: { id: mealId },
@@ -849,15 +870,24 @@ export class MealsService {
         preparationTime
       };
       
-      console.log(`[DEBUG] Nutrition analysis completed for meal: ${meal.title}`);
+      logger.debug("Nutrition analysis completed", { mealId, mealTitle: meal.title });
       return analysis;
     } catch (error) {
-      console.error(`[ERROR] getNutritionAnalysis failed:`, error);
+      logger.error("getNutritionAnalysis failed", { mealId, error });
       throw error;
     }
   }
   
-  private calculateMealNutrition(meal: any) {
+  private calculateMealNutrition(meal: Meal & { 
+    aliments?: Array<{ 
+      aliment: { 
+        macros?: Array<{ 
+          macro: { name: string }; 
+          quantity: number 
+        }> 
+      } 
+    }> 
+  }) {
     let totalProtein = 0;
     let totalCarbohydrates = 0;
     let totalLipids = 0;
@@ -866,7 +896,7 @@ export class MealsService {
       return { protein: 0, carbohydrates: 0, lipids: 0 };
     }
     
-    meal.aliments.forEach((mealAliment: any) => {
+    meal.aliments?.forEach((mealAliment) => {
       if (!mealAliment || !mealAliment.aliment) {
         return;
       }
@@ -874,7 +904,7 @@ export class MealsService {
       const quantity = mealAliment.quantity / 100; // Convert to 100g portions
       
       if (mealAliment.aliment.macros && Array.isArray(mealAliment.aliment.macros)) {
-        mealAliment.aliment.macros.forEach((alimentMacro: any) => {
+        mealAliment.aliment.macros.forEach((alimentMacro) => {
           if (!alimentMacro || !alimentMacro.macro) {
             return;
           }
@@ -900,7 +930,7 @@ export class MealsService {
     };
   }
   
-  private getMacroScore(nutrition: any, preferredMacro: string): number {
+  private getMacroScore(nutrition: { protein: number; carbohydrates: number; lipids: number }, preferredMacro: string): number {
     const macro = preferredMacro.toLowerCase();
     if (macro.includes('protein')) {
       return nutrition.protein;
@@ -926,7 +956,7 @@ export class MealsService {
     mealType?: MealType,
     limit: number = 10
   ): Promise<Meal[]> {
-    console.log(`[DEBUG] getPersonalizedSuggestions: Starting for userId=${userId}`);
+    logger.debug("getPersonalizedSuggestions: Starting", { userId, mealType, limit });
     
     const profileService = new UserProfileService();
     const profile = await profileService.getProfile(userId);
@@ -983,7 +1013,7 @@ export class MealsService {
       limit,
     };
     
-    console.log(`[DEBUG] getPersonalizedSuggestions filters:`, {
+    logger.debug("getPersonalizedSuggestions filters", {
       targetCalories,
       maxTime: filters.maxTime,
       excludedAlimentsCount: filters.excludedAliments?.length || 0,
@@ -997,16 +1027,16 @@ export class MealsService {
 
     if (suggestions.length === 0) {
       // If no suggestions match filters, return all meals sorted by relevance
-      console.log(`[DEBUG] No suggestions match filters, returning all meals sorted by relevance`);
+      logger.debug("No suggestions match filters, returning all meals sorted by relevance");
       const allMeals = await this.getAll();
       suggestions = allMeals;
     }
     
-    console.log(`[DEBUG] Processing ${suggestions.length} suggestions through profile filters`);
+    logger.debug("Processing suggestions through profile filters", { suggestionCount: suggestions.length });
 
     // Apply additional profile-based filters and scoring
     suggestions = this.applyProfileFilters(suggestions, profile, mealType);
-    console.log(`[DEBUG] After profile filters: ${suggestions.length} suggestions`);
+    logger.debug("After profile filters", { suggestionCount: suggestions.length });
 
     // Sort by relevance score
     const scoredMeals = suggestions.map(meal => ({
@@ -1076,7 +1106,7 @@ export class MealsService {
   /**
    * Get excluded aliments from profile (dietary restrictions, allergies, etc.)
    */
-  private getExcludedAlimentsFromProfile(profile: any): string[] {
+  private getExcludedAlimentsFromProfile(profile: UserProfile): string[] {
     const excluded: string[] = [];
 
     // Add explicitly excluded aliments
@@ -1122,7 +1152,7 @@ export class MealsService {
    */
   private applyProfileFilters(
     meals: Meal[],
-    profile: any,
+    profile: UserProfile,
     mealType?: MealType
   ): Meal[] {
     return meals.filter((meal) => {
@@ -1164,7 +1194,7 @@ export class MealsService {
   /**
    * Get prep time limit for specific meal type
    */
-  private getPrepTimeForMealType(profile: any, mealType: MealType): number | null {
+  private getPrepTimeForMealType(profile: UserProfile, mealType: MealType): number | null {
     switch (mealType) {
       case "BREAKFAST":
         return profile.breakfastPrepTime || profile.maxPrepTimePerMeal || null;
@@ -1182,12 +1212,14 @@ export class MealsService {
   /**
    * Calculate meal preparation time
    */
-  private calculateMealPrepTime(meal: any): number {
+  private calculateMealPrepTime(meal: Meal & { 
+    preparations?: Array<{ preparation?: { estimated_time: number } }> 
+  }): number {
     if (!meal.preparations || !Array.isArray(meal.preparations)) {
       return 0;
     }
     return meal.preparations.reduce(
-      (sum: number, prep: any) => sum + (prep.preparation?.estimated_time || 0),
+      (sum: number, prep) => sum + (prep.preparation?.estimated_time || 0),
       0
     );
   }
@@ -1195,7 +1227,7 @@ export class MealsService {
   /**
    * Estimate meal complexity
    */
-  private estimateMealComplexity(meal: any): string {
+  private estimateMealComplexity(meal: Meal): string {
     const ingredientCount = meal.aliments?.length || 0;
     const prepStepCount = meal.preparations?.length || 0;
 
@@ -1225,9 +1257,9 @@ export class MealsService {
    * Calculate relevance score for a meal based on profile
    */
   private calculateRelevanceScore(
-    meal: any,
-    profile: any,
-    needs: any,
+    meal: Meal,
+    profile: UserProfile,
+    needs: { mealCalories?: { breakfast: number; lunch: number; dinner: number; snack: number }; targetCalories: number },
     mealType?: MealType
   ): number {
     let score = 100;
@@ -1298,7 +1330,7 @@ export class MealsService {
 
     return score;
     } catch (error) {
-      console.error(`[ERROR] Error in calculateRelevanceScore:`, error);
+      logger.error("Error in calculateRelevanceScore", { error });
       return 50; // Return default score on error
     }
   }
