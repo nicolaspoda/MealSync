@@ -3,8 +3,17 @@ import { prisma } from "../shared/prisma";
 import { logger } from "../shared/logger";
 import { UserProfileService } from "../users/userProfileService";
 import { MetabolicCalculator } from "../users/metabolicCalculator";
-import type { MealType, UserProfile } from "../users/userProfile";
+import type { MealType, CalculatedNeeds } from "../users/userProfile";
 import type { Prisma } from "../generated/prisma";
+
+type UserProfile = Prisma.UserProfileGetPayload<{
+  include: {
+    mealDistribution: true;
+  };
+}> & {
+  excludedAliments?: string | string[];
+  dislikedFoods?: string | string[];
+};
 
 export type MealCreationParams = Omit<
   Meal,
@@ -878,16 +887,23 @@ export class MealsService {
     }
   }
   
-  private calculateMealNutrition(meal: Meal & { 
-    aliments?: Array<{ 
-      aliment: { 
-        macros?: Array<{ 
-          macro: { name: string }; 
-          quantity: number 
-        }> 
-      } 
-    }> 
-  }) {
+  private calculateMealNutrition(meal: Meal | Prisma.MealGetPayload<{
+    include: {
+      aliments: {
+        include: {
+          aliment: {
+            include: {
+              macros: {
+                include: {
+                  macro: true;
+                };
+              };
+            };
+          };
+        };
+      };
+    };
+  }>) {
     let totalProtein = 0;
     let totalCarbohydrates = 0;
     let totalLipids = 0;
@@ -896,15 +912,17 @@ export class MealsService {
       return { protein: 0, carbohydrates: 0, lipids: 0 };
     }
     
-    meal.aliments?.forEach((mealAliment) => {
+    meal.aliments?.forEach((mealAliment: any) => {
       if (!mealAliment || !mealAliment.aliment) {
         return;
       }
       
       const quantity = mealAliment.quantity / 100; // Convert to 100g portions
       
-      if (mealAliment.aliment.macros && Array.isArray(mealAliment.aliment.macros)) {
-        mealAliment.aliment.macros.forEach((alimentMacro) => {
+      // Check if aliment has macros (from Prisma query)
+      const aliment = mealAliment.aliment as any;
+      if (aliment.macros && Array.isArray(aliment.macros)) {
+        aliment.macros.forEach((alimentMacro: any) => {
           if (!alimentMacro || !alimentMacro.macro) {
             return;
           }
@@ -1109,14 +1127,32 @@ export class MealsService {
   private getExcludedAlimentsFromProfile(profile: UserProfile): string[] {
     const excluded: string[] = [];
 
-    // Add explicitly excluded aliments
-    if (profile.excludedAliments && Array.isArray(profile.excludedAliments)) {
-      excluded.push(...profile.excludedAliments);
+    // Add explicitly excluded aliments (stored as JSON string in Prisma)
+    try {
+      if (profile.excludedAliments) {
+        const excludedAliments = typeof profile.excludedAliments === 'string' 
+          ? JSON.parse(profile.excludedAliments) 
+          : profile.excludedAliments;
+        if (Array.isArray(excludedAliments)) {
+          excluded.push(...excludedAliments);
+        }
+      }
+    } catch (e) {
+      logger.warn("Failed to parse excludedAliments from profile", { error: e });
     }
 
-    // Add disliked foods
-    if (profile.dislikedFoods && Array.isArray(profile.dislikedFoods)) {
-      excluded.push(...profile.dislikedFoods);
+    // Add disliked foods (stored as JSON string in Prisma)
+    try {
+      if (profile.dislikedFoods) {
+        const dislikedFoods = typeof profile.dislikedFoods === 'string'
+          ? JSON.parse(profile.dislikedFoods)
+          : profile.dislikedFoods;
+        if (Array.isArray(dislikedFoods)) {
+          excluded.push(...dislikedFoods);
+        }
+      }
+    } catch (e) {
+      logger.warn("Failed to parse dislikedFoods from profile", { error: e });
     }
 
     // TODO: Add aliments based on dietary restrictions (vegetarian, vegan, etc.)
@@ -1259,7 +1295,7 @@ export class MealsService {
   private calculateRelevanceScore(
     meal: Meal,
     profile: UserProfile,
-    needs: { mealCalories?: { breakfast: number; lunch: number; dinner: number; snack: number }; targetCalories: number },
+    needs: CalculatedNeeds,
     mealType?: MealType
   ): number {
     let score = 100;
@@ -1272,6 +1308,9 @@ export class MealsService {
     // Score based on calorie match
     if (mealType && needs.mealCalories) {
       let targetCalories: number | undefined;
+      
+      // Handle optional mealCalories properties
+      const mealCalories = needs.mealCalories;
       switch (mealType) {
         case "BREAKFAST":
           targetCalories = needs.mealCalories.breakfast;

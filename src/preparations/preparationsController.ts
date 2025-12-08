@@ -24,7 +24,6 @@ export class PreparationsController extends Controller {
    * Returns an array containing all preparations (recipe steps) with their information.
    */
   @Get()
-  @Security("api_key")
   public async getPreparations(): Promise<Preparation[]> {
     return new PreparationsService().getAll();
   }
@@ -53,6 +52,7 @@ export class PreparationsController extends Controller {
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("201", "Created")
   @Post()
+  @Security("api_key")
   public async createPreparation(
     @Body() requestBody: PreparationCreationParams
   ): Promise<Preparation> {
@@ -70,6 +70,7 @@ export class PreparationsController extends Controller {
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("200", "Updated")
   @Put("{preparationId}")
+  @Security("api_key")
   public async updatePreparation(
     @Path() preparationId: string,
     @Body() requestBody: Partial<PreparationCreationParams>

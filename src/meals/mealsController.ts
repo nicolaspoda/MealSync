@@ -43,7 +43,6 @@ export class MealsController extends Controller {
    * @param suggestionsLimit Number of suggestions to return (default: 5, max: 20, only used with suggestions)
    */
   @Get()
-  @Security("api_key")
   public async getMeals(
     @Query() page?: number,
     @Query() limit?: number,
@@ -140,7 +139,6 @@ export class MealsController extends Controller {
    * @example mealId "52907745-7672-470e-a803-a2f8feb52944"
    */
   @Get("{mealId}/nutrition-analysis")
-  @Security("api_key")
   public async getMealNutritionAnalysis(@Path() mealId: string): Promise<NutritionAnalysis> {
     const analysis = await new MealsService().getNutritionAnalysis(mealId);
     if (!analysis) {
@@ -157,7 +155,6 @@ export class MealsController extends Controller {
    * @example mealId "52907745-7672-470e-a803-a2f8feb52944"
    */
   @Get("{mealId}")
-  @Security("api_key")
   public async getMeal(@Path() mealId: string): Promise<Meal> {
     const meal = await new MealsService().get(mealId);
     if (!meal) {

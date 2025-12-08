@@ -24,7 +24,6 @@ export class AlimentsController extends Controller {
    * Returns an array containing all aliments with their nutritional information.
    */
   @Get()
-  @Security("api_key")
   public async getAliments(): Promise<Aliment[]> {
     return new AlimentsService().getAll();
   }
@@ -53,6 +52,7 @@ export class AlimentsController extends Controller {
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("201", "Created")
   @Post()
+  @Security("api_key")
   public async createAliment(
     @Body() requestBody: AlimentCreationParams
   ): Promise<Aliment> {
@@ -70,6 +70,7 @@ export class AlimentsController extends Controller {
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("200", "Updated")
   @Put("{alimentId}")
+  @Security("api_key")
   public async updateAliment(
     @Path() alimentId: string,
     @Body() requestBody: Partial<AlimentCreationParams>

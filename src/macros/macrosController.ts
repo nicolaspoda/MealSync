@@ -24,7 +24,6 @@ export class MacrosController extends Controller {
    * Returns an array containing all macronutrients (proteins, carbohydrates, lipids).
    */
   @Get()
-  @Security("api_key")
   public async getMacros(): Promise<Macro[]> {
     return new MacrosService().getAll();
   }
@@ -53,6 +52,7 @@ export class MacrosController extends Controller {
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("201", "Created")
   @Post()
+  @Security("api_key")
   public async createMacro(
     @Body() requestBody: MacroCreationParams
   ): Promise<Macro> {
@@ -70,6 +70,7 @@ export class MacrosController extends Controller {
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("200", "Updated")
   @Put("{macroId}")
+  @Security("api_key")
   public async updateMacro(
     @Path() macroId: string,
     @Body() requestBody: Partial<MacroCreationParams>

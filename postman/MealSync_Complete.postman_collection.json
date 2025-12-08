@@ -25,13 +25,7 @@
 					"name": "Get All Aliments",
 					"request": {
 						"method": "GET",
-						"header": [
-							{
-								"key": "x-api-key",
-								"value": "{{api_key}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/aliments",
 							"host": [
@@ -48,13 +42,7 @@
 					"name": "Get Aliment by ID",
 					"request": {
 						"method": "GET",
-						"header": [
-							{
-								"key": "x-api-key",
-								"value": "{{api_key}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/aliments/:alimentId",
 							"host": [
@@ -185,13 +173,7 @@
 					"name": "Get All Equipments",
 					"request": {
 						"method": "GET",
-						"header": [
-							{
-								"key": "x-api-key",
-								"value": "{{api_key}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/equipments",
 							"host": [
@@ -207,13 +189,7 @@
 					"name": "Get Equipment by ID",
 					"request": {
 						"method": "GET",
-						"header": [
-							{
-								"key": "x-api-key",
-								"value": "{{api_key}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/equipments/:equipmentId",
 							"host": [
@@ -339,13 +315,7 @@
 					"name": "Get All Macros",
 					"request": {
 						"method": "GET",
-						"header": [
-							{
-								"key": "x-api-key",
-								"value": "{{api_key}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/macros",
 							"host": [
@@ -361,13 +331,7 @@
 					"name": "Get Macro by ID",
 					"request": {
 						"method": "GET",
-						"header": [
-							{
-								"key": "x-api-key",
-								"value": "{{api_key}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/macros/:macroId",
 							"host": [
@@ -493,13 +457,7 @@
 					"name": "Get All Meals",
 					"request": {
 						"method": "GET",
-						"header": [
-							{
-								"key": "x-api-key",
-								"value": "{{api_key}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/meals?page=&limit=&title=&minCalories=&maxCalories=&aliment=&equipment=&maxTime=&targetCalories=&excludedAliments=&availableEquipments=&preferredMacros=&suggestionsLimit=",
 							"host": [
@@ -596,13 +554,7 @@
 					"name": "Get Meal by ID",
 					"request": {
 						"method": "GET",
-						"header": [
-							{
-								"key": "x-api-key",
-								"value": "{{api_key}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/meals/:mealId",
 							"host": [
@@ -625,13 +577,7 @@
 					"name": "Get Meal Nutrition Analysis",
 					"request": {
 						"method": "GET",
-						"header": [
-							{
-								"key": "x-api-key",
-								"value": "{{api_key}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/meals/:mealId/nutrition-analysis",
 							"host": [
@@ -838,13 +784,7 @@
 					"name": "Get All Preparations",
 					"request": {
 						"method": "GET",
-						"header": [
-							{
-								"key": "x-api-key",
-								"value": "{{api_key}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/preparations",
 							"host": [
@@ -860,13 +800,7 @@
 					"name": "Get Preparation by ID",
 					"request": {
 						"method": "GET",
-						"header": [
-							{
-								"key": "x-api-key",
-								"value": "{{api_key}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/preparations/:preparationId",
 							"host": [

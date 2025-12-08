@@ -24,7 +24,6 @@ export class EquipmentsController extends Controller {
    * Returns an array containing all kitchen equipments (oven, microwave, etc.).
    */
   @Get()
-  @Security("api_key")
   public async getEquipments(): Promise<Equipment[]> {
     return new EquipmentsService().getAll();
   }
@@ -53,6 +52,7 @@ export class EquipmentsController extends Controller {
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("201", "Created")
   @Post()
+  @Security("api_key")
   public async createEquipment(
     @Body() requestBody: EquipmentCreationParams
   ): Promise<Equipment> {
@@ -70,6 +70,7 @@ export class EquipmentsController extends Controller {
   @Response<ValidateErrorJSON>(422, "Validation Failed")
   @SuccessResponse("200", "Updated")
   @Put("{equipmentId}")
+  @Security("api_key")
   public async updateEquipment(
     @Path() equipmentId: string,
     @Body() requestBody: Partial<EquipmentCreationParams>

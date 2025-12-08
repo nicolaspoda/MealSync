@@ -136,29 +136,53 @@ L'API Key est configurée dans le fichier `.env` via la variable `API_KEY`.
 
 ### Utilisation de l'API Key
 
-Toutes les requêtes vers l'API doivent inclure l'API Key dans le header `x-api-key` :
+**Endpoints protégés** (nécessitent une API Key) :
+- Tous les `POST` (création)
+- Tous les `PUT` (modification)
+- Tous les `DELETE` (suppression)
+- `GET /meals/suggestions` (suggestions personnalisées basées sur le profil utilisateur)
+
+**Endpoints publics** (ne nécessitent pas d'API Key) :
+- Tous les `GET` simples (liste et détails) pour `/aliments`, `/equipments`, `/macros`, `/preparations`, `/meals`
+
+Pour les endpoints protégés, incluez l'API Key dans le header `x-api-key` :
 
 ```bash
-curl -H "x-api-key: your-api-key-here" http://localhost:3000/aliments
+# Exemple avec un endpoint protégé (POST)
+curl -X POST \
+  -H "x-api-key: your-api-key-here" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Poulet", "cal_100g": 165}' \
+  http://localhost:3000/aliments
+
+# Exemple avec un endpoint public (GET)
+curl http://localhost:3000/aliments
 ```
 
 **Exemple avec Postman** :
 1. Créer une nouvelle requête
-2. Aller dans l'onglet "Headers"
+2. Pour les endpoints protégés, aller dans l'onglet "Headers"
 3. Ajouter : `x-api-key` = `your-api-key-here`
 
 **Exemple avec fetch (JavaScript)** :
 ```javascript
+// Endpoint protégé (POST)
 fetch('http://localhost:3000/aliments', {
+  method: 'POST',
   headers: {
-    'x-api-key': 'your-api-key-here'
-  }
+    'x-api-key': 'your-api-key-here',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ name: 'Poulet', cal_100g: 165 })
 })
+
+// Endpoint public (GET)
+fetch('http://localhost:3000/aliments')
 ```
 
 ### Endpoints protégés
 
-La plupart des endpoints nécessitent une API Key valide. En cas d'API Key manquante ou invalide, vous recevrez une erreur `401 Unauthorized`.
+Les endpoints de modification (POST, PUT, DELETE) et les suggestions personnalisées nécessitent une API Key valide. En cas d'API Key manquante ou invalide, vous recevrez une erreur `401 Unauthorized`.
 
 ---
 
@@ -286,11 +310,10 @@ Par défaut : `http://localhost:3000`
 
 ## 💡 Exemples d'utilisation
 
-### Exemple 1 : Récupérer tous les aliments
+### Exemple 1 : Récupérer tous les aliments (endpoint public)
 
 ```bash
-curl -H "x-api-key: your-api-key-here" \
-  http://localhost:3000/aliments
+curl http://localhost:3000/aliments
 ```
 
 ### Exemple 2 : Créer un nouvel aliment
@@ -306,11 +329,10 @@ curl -X POST \
   http://localhost:3000/aliments
 ```
 
-### Exemple 3 : Rechercher des plats avec filtres
+### Exemple 3 : Rechercher des plats avec filtres (endpoint public)
 
 ```bash
-curl -H "x-api-key: your-api-key-here" \
-  "http://localhost:3000/meals/paginated?page=1&limit=10&minCalories=200&maxCalories=500"
+curl "http://localhost:3000/meals?page=1&limit=10&minCalories=200&maxCalories=500"
 ```
 
 ### Exemple 4 : Obtenir des suggestions de plats personnalisées
